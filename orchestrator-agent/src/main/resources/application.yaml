@@ -6,11 +6,11 @@ spring:
     vertex:
       ai:
         gemini:
-          project-id: 
-          location: 
+          project-id: deutschebank-aipocs
+          location: us-central1
           chat:
             options:
-              model: 
+              model: gemini-2.5-pro
 
     mcp:
       client:
