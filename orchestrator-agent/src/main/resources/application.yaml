@@ -1,0 +1,21 @@
+server:
+  port: 8083
+
+spring:
+  ai:
+    vertex:
+      ai:
+        gemini:
+          project-id: 
+          location: 
+          chat:
+            options:
+              model: 
+
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            server1:
+              url: http://localhost:8080
+              endpoint: /mcp

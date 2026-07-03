@@ -1,0 +1,33 @@
+# Build and output directories
+target/
+build/
+out/
+bin/
+
+
+**/target/
+**/build/
+**/out/
+**/bin/
+# Maven
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - VS Code
+.vscode/
+
+# IDE - Eclipse
+.settings/
+.project
+.classpath
+.factorypath
+
+# System and Logs
+*.log
+.DS_Store
+**/__pycache__/
