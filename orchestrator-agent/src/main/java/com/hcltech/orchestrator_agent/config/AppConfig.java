@@ -42,8 +42,7 @@ public class AppConfig {
                             builder.header(
                                     "Authorization",
                                     "Bearer " 
-                                    + "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"
-                                    // + System.getenv("GITHUB_TOKEN")
+                                    + System.getenv("GITHUB_TOKEN")
                                 );
                         })
                 .build();
