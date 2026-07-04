@@ -24,7 +24,7 @@ public class OpenSearchTools {
         @McpTool(name = "opensearch_search_logs_by_text", description = "Search logs containing the given text")
         public String searchLogsByText(
                         @McpToolParam(description = "Text or query to search") String query) throws Exception {
-
+                log.info("Searching logs by text: {}", query);
                 SearchSourceBuilder source = new SearchSourceBuilder()
                                 .query(QueryBuilders.queryStringQuery(query))
                                 .size(50);
@@ -34,7 +34,6 @@ public class OpenSearchTools {
                 StringBuilder builder = new StringBuilder();
                 response.getHits().forEach(hit -> {
                         builder.append(hit.getSourceAsString());
-                        System.out.println(hit.getSourceAsString());
                 });
 
                 return builder.toString();
@@ -46,7 +45,7 @@ public class OpenSearchTools {
 
                         @McpToolParam(description = "End timestamp in ISO8601 format") String endTime)
                         throws Exception {
-
+                log.info("Searching logs by time range: {} to {}", startTime, endTime);
                 SearchSourceBuilder source = new SearchSourceBuilder()
                                 .query(
                                                 QueryBuilders.rangeQuery("@timestamp")
@@ -56,12 +55,11 @@ public class OpenSearchTools {
 
                 SearchResponse response = service.search(source);
 
-                response.getHits().forEach(hit -> System.out.println(hit.getSourceAsString()));
-
                 StringBuilder builder = new StringBuilder();
                 response.getHits().forEach(hit -> {
-                        builder.append(hit.getSourceAsString() + "\n");
-                        System.out.println(hit.getSourceAsString());
+                        String sourceStr = hit.getSourceAsString();
+                        log.debug("Found log: {}", sourceStr);
+                        builder.append(sourceStr).append("\n");
                 });
 
                 return builder.toString();
@@ -75,7 +73,7 @@ public class OpenSearchTools {
 
                         @McpToolParam(description = "End timestamp in ISO8601 format") String endTime)
                         throws Exception {
-
+                log.info("Searching logs by query '{}' in range {} to {}", query, startTime, endTime);
                 BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
                                 .must(QueryBuilders.queryStringQuery(query))
                                 .filter(
@@ -91,8 +89,9 @@ public class OpenSearchTools {
 
                 StringBuilder builder = new StringBuilder();
                 response.getHits().forEach(hit -> {
-                        builder.append(hit.getSourceAsString() + "\n");
-                        System.out.println(hit.getSourceAsString());
+                        String sourceStr = hit.getSourceAsString();
+                        log.debug("Found log: {}", sourceStr);
+                        builder.append(sourceStr).append("\n");
                 });
 
                 return builder.toString();
@@ -100,7 +99,7 @@ public class OpenSearchTools {
 
         @McpTool(name = "opensearch_recent_errors", description = "Get recent error logs")
         public String recentErrors() throws Exception {
-
+                log.info("Fetching recent error logs");
                 SearchSourceBuilder source = new SearchSourceBuilder()
                                 .query(QueryBuilders.matchQuery("level", "ERROR"))
                                 .sort("@timestamp", SortOrder.DESC)
@@ -111,8 +110,7 @@ public class OpenSearchTools {
                 StringBuilder builder = new StringBuilder();
 
                 response.getHits().forEach(hit -> {
-                        builder.append(hit.getSourceAsString() + "\n");
-                        System.out.println(hit.getSourceAsString());
+                        builder.append(hit.getSourceAsString()).append("\n");
                 });
 
                 return builder.toString();
@@ -122,6 +120,7 @@ public class OpenSearchTools {
         public String traceCorrelation(
                         @McpToolParam(description = "Correlation ID") String correlationId) throws Exception {
 
+                log.info("Tracing correlation ID: {}", correlationId);
                 SearchSourceBuilder source = new SearchSourceBuilder()
                                 .query(
                                                 QueryBuilders.termQuery(
@@ -131,8 +130,6 @@ public class OpenSearchTools {
 
                 SearchResponse response = service.search(source);
 
-                response.getHits().forEach(hit -> System.out.println(hit.getSourceAsString()));
-
                 return "Printed "
                                 + response.getHits().getHits().length
                                 + " correlation logs";
@@ -140,7 +137,7 @@ public class OpenSearchTools {
 
         @McpTool(name = "opensearch_top_exceptions", description = "Get most frequent exceptions")
         public String topExceptions() throws Exception {
-
+                log.info("Fetching top exceptions");
                 SearchSourceBuilder source = new SearchSourceBuilder()
                                 .aggregation(
                                                 AggregationBuilders
@@ -161,7 +158,7 @@ public class OpenSearchTools {
                                         + " => "
                                         + bucket.getDocCount();
 
-                        System.out.println(line);
+                        log.debug("Exception stats: {}", line);
 
                         result.append(line).append("\n");
                 }
@@ -174,7 +171,7 @@ public class OpenSearchTools {
                         @McpToolParam(description = "Field name") String field,
 
                         @McpToolParam(description = "Field value") String value) throws Exception {
-
+                log.info("Searching logs by field: {} = {}", field, value);
                 SearchSourceBuilder source = new SearchSourceBuilder()
                                 .query(QueryBuilders.matchQuery(field, value))
                                 .size(100);
@@ -183,8 +180,7 @@ public class OpenSearchTools {
 
                 StringBuilder builder = new StringBuilder();
                 response.getHits().forEach(hit -> {
-                        builder.append(hit.getSourceAsString() + "\n");
-                        System.out.println(hit.getSourceAsString());
+                        builder.append(hit.getSourceAsString()).append("\n");
                 });
 
                 return builder.toString();
@@ -192,7 +188,7 @@ public class OpenSearchTools {
 
         @McpTool(name = "opensearch_count_logs", description = "Count number of logs matching a query")
         public String countLogs(@McpToolParam(description = "Search query") String query) throws Exception {
-
+                log.info("Counting logs for query: {}", query);
                 long count = service.count(query);
 
                 return "Matching log count: " + count;

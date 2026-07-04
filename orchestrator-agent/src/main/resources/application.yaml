@@ -12,13 +12,13 @@ spring:
             options:
               model: gemini-2.5-pro
 
-    # mcp:
-    #   client:
-        # streamable-http:
-        #   connections:
-        #     opensearch-mcp:
-        #       url: http://localhost:8080
-        #       endpoint: /mcp
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            opensearch-mcp:
+              url: http://localhost:8080
+              endpoint: /mcp
         # sse:
         #   connections:
         #     github-mcp:

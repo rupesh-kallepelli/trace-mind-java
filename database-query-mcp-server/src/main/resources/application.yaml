@@ -1,0 +1,51 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: database-mcp-server
+  ai:
+    mcp:
+      server:
+#        comment below for making server STDIO
+        protocol: STREAMABLE
+        enabled: true
+        name: database-mcp-server
+        version: 1.0.0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+app:
+
+  databases:
+
+    postgres-db:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://postgresql:5432/observaai
+      username: postgres
+      password: postgres
+
+    mysql-db:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://mysql:3306/observaai
+      username: appuser
+      password: appuser
+
+    mariadb-db:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: jdbc:mariadb://mariadb:3306/observaai
+      username: appuser
+      password: appuser
+
+    sqlserver-db:
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      jdbc-url: jdbc:sqlserver://sqlserver:1433;encrypt=false;trustServerCertificate=true
+      username: sa
+      password: Password@123
+
+    oracle-db:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@oracle:1521/FREEPDB1
+      username: system
+      password: oracle

@@ -1,13 +1,13 @@
 spring:
   application:
-    name: java-mcp-server
+    name: opensearch_mcp
   ai:
     mcp:
       server:
 #        comment below for making server STDIO
         protocol: STREAMABLE
         enabled: true
-        name: my-file-server
+        name: opensearch_mcp
         version: 1.0.0
 management:
   endpoints:
