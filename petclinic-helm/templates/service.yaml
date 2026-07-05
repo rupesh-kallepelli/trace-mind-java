@@ -1,0 +1,18 @@
+{{- range .Values.applications }}
+{{- with .service }}
+{{- if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.name | default $.Chart.Name }}
+spec:
+  type: {{ .type | default "ClusterIP" }}
+  selector:
+    app: {{ $.name }}
+  ports:
+    - port: {{ .port }}
+      targetPort: {{ .targetPort | default .port }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

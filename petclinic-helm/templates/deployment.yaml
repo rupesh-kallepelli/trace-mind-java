@@ -1,0 +1,158 @@
+{{- range .Values.applications }}
+{{- if .enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: {{ .name }}
+  labels:
+    app: {{ .name }}
+    app.kubernetes.io/name: {{ .name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: {{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}
+
+spec:
+  replicas: {{ .replicaCount | default 1 }}
+
+  selector:
+    matchLabels:
+      app: {{ .name }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+        app.kubernetes.io/name: {{ .name }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+
+    spec:
+
+{{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .serviceAccount }}
+{{- if .create }}
+      serviceAccountName: {{ .name }}
+{{- end }}
+{{- end }}
+
+{{- with .podSecurityContext }}
+      securityContext:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+{{- end }}
+
+{{- with .nodeSelector }}
+      nodeSelector:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .affinity }}
+      affinity:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .tolerations }}
+      tolerations:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .volumes }}
+      volumes:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .initContainers }}
+      initContainers:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+
+      containers:
+        - name: {{ .name }}
+          image: "{{ .image.repository }}:{{ default "latest" .image.tag }}"
+          imagePullPolicy: {{ default "IfNotPresent" .image.pullPolicy }}
+
+{{- with .command }}
+          command:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .args }}
+          args:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .ports }}
+          ports:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- if or $.Values.global.commonEnv .env }}
+          env:
+{{- with $.Values.global.commonEnv }}
+{{ toYaml . | nindent 12 }}
+{{- end }}
+{{- with .env }}
+{{ toYaml . | nindent 12 }}
+{{- end }}
+{{- end }}
+
+{{- with .envFrom }}
+          envFrom:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .resources }}
+          resources:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .containerSecurityContext }}
+          securityContext:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .volumeMounts }}
+          volumeMounts:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .lifecycle }}
+          lifecycle:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .probes }}
+
+{{- with .startup }}
+{{- if .enabled }}
+          startupProbe:
+{{ omit . "enabled" | toYaml | nindent 12 }}
+{{- end }}
+{{- end }}
+
+{{- with .readiness }}
+{{- if .enabled }}
+          readinessProbe:
+{{ omit . "enabled" | toYaml | nindent 12 }}
+{{- end }}
+{{- end }}
+
+{{- with .liveness }}
+{{- if .enabled }}
+          livenessProbe:
+{{ omit . "enabled" | toYaml | nindent 12 }}
+{{- end }}
+{{- end }}
+
+{{- end }}
+
+{{- end }}
+{{- end }}

@@ -1,0 +1,31 @@
+apiVersion: v2
+
+name: petclinic
+
+description: Generic Helm Chart for Spring PetClinic Microservices
+
+type: application
+
+version: 1.0.0
+
+appVersion: "3.4.0"
+
+kubeVersion: ">=1.25.0"
+
+keywords:
+  - spring
+  - microservices
+  - petclinic
+  - helm
+
+home: https://github.com/spring-petclinic
+
+sources:
+  - https://github.com/spring-petclinic/spring-petclinic-microservices
+
+maintainers:
+  - name: Rupesh Kallepelli
+    email: your-email@example.com
+
+annotations:
+  category: Microservices

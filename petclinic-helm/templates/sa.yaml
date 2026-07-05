@@ -1,0 +1,12 @@
+{{- range .Values.applications }}
+{{- $app := . }}
+{{- if and $app.enabled $app.serviceAccount $app.serviceAccount.create }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $app.serviceAccount.name }}
+  labels:
+    app: {{ $app.name }}
+{{- end }}
+{{- end }}

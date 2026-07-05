@@ -1,0 +1,801 @@
+global:
+  imagePullSecrets: []
+  commonEnv:
+    - name: SPRING_PROFILES_ACTIVE
+      value: docker
+
+    - name: CONFIG_SERVER_URL
+      value: http://config-server:8888
+
+    - name: EUREKA_SERVER_URL
+      value: http://discovery-server:8761/eureka
+
+    - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+      value: http://tracing-server:9411/api/v2/spans
+
+    - name: SPRING_DATASOURCE_URL
+      value: jdbc:mysql://mysql:3306/petclinic
+
+    - name: SPRING_DATASOURCE_USERNAME
+      value: petclinic
+
+    - name: SPRING_DATASOURCE_PASSWORD
+      value: petclinic
+
+  commonLabels: {}
+
+  commonAnnotations: {}
+
+  replicaCount: 1
+
+  image:
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+
+  resources:
+    requests:
+      cpu: 100m
+
+      memory: 256Mi
+
+    limits:
+      memory: 512Mi
+
+applications:
+  - name: config-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-config-server
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8888
+      targetPort: 8888
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8888
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8888
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8888
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8888
+
+  - name: discovery-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-discovery-server
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8761
+      targetPort: 8761
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8761
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8761
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8761
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8761
+
+  - name: customers-service
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-customers-service
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8081
+      targetPort: 8081
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8081
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8081
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8081
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8081
+
+  - name: visits-service
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-visits-service
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8082
+      targetPort: 8082
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8082
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8082
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /actuator/health
+          port: 8082
+      liveness:
+        enabled: false
+        httpGet:
+          path: /actuator/health
+          port: 8082
+
+  - name: vets-service
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-vets-service
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8083
+      targetPort: 8083
+
+    route:
+      enabled: false
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8083
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8083
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+        httpGet:
+          path: /actuator/health
+          port: 8083
+        failureThreshold: 30
+        periodSeconds: 5
+
+      readiness:
+        enabled: false
+        httpGet:
+          path: /actuator/health
+          port: 8083
+        initialDelaySeconds: 20
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 6
+
+      liveness:
+        enabled: false
+        httpGet:
+          path: /actuator/health
+          port: 8083
+        initialDelaySeconds: 60
+        periodSeconds: 20
+        timeoutSeconds: 5
+        failureThreshold: 3
+
+  - name: api-gateway
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-api-gateway
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+
+  - name: tracing-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: openzipkin/zipkin
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 9411
+      targetPort: 9411
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 9411
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 9411
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 9411
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 9411
+
+  - name: admin-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: springcommunity/spring-petclinic-admin-server
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 9090
+      targetPort: 9090
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 9090
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 9090
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 9090
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 9090
+
+  - name: grafana-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: grafana/grafana
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3000
+      targetPort: 3000
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 3000
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: true
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 3000
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+      liveness:
+        enabled: false
+
+  - name: prometheus-server
+    enabled: true
+
+    image:
+      repository: prom/prometheus
+      tag: v3.13.0
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 9090
+      targetPort: 9090
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: true
+
+    ports:
+      - name: http
+        containerPort: 9090
+        protocol: TCP
+
+    args:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/tmp/prometheus"
+
+    volumeMounts:
+      - name: prometheus-config
+        mountPath: /etc/prometheus/prometheus.yml
+        subPath: prometheus.yml
+
+      - name: prometheus-storage
+        mountPath: /tmp/prometheus
+
+    volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+
+      - name: prometheus-storage
+        emptyDir: {}
+
+    securityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+  - name: loki
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: grafana/loki
+      tag: "3.5.0"
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3100
+      targetPort: 3100
+
+    ports:
+      - name: http
+        containerPort: 3100
+        protocol: TCP
+
+    args:
+      - "-config.file=/etc/loki/loki.yaml"
+
+    volumeMounts:
+      - name: loki-config
+        mountPath: /etc/loki
+
+      - name: loki-storage
+        mountPath: /loki
+
+    volumes:
+      - name: loki-config
+        configMap:
+          name: loki-config
+
+      - name: loki-storage
+        emptyDir: {}
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    route:
+      enabled: false
+
+    metrics:
+      enabled: true
+      path: /metrics
+      port: 3100
+
+  - name: kubernetes-mcp
+    enabled: true
+
+    replicaCount: 1
+
+    image:
+      repository: quay.io/containers/kubernetes_mcp_server
+      tag: latest
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: true
+
+    serviceAccount:
+      create: true
+      name: kubernetes-mcp
+
+    rbac:
+      create: true
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    env: []
+
+    envFrom: []
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    podSecurityContext:
+      runAsNonRoot: true
+
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+    probes:
+      startup:
+        enabled: false
+
+      readiness:
+        enabled: false
+
+      liveness:
+        enabled: false
+
+    terminationGracePeriodSeconds: 30
+
+  - name: mysql
+    enabled: true
+
+    replicaCount: 1
+
+    image:
+      repository: mysql
+      tag: "8.4"
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3306
+      targetPort: 3306
+
+    route:
+      enabled: false
+
+    ports:
+      - name: mysql
+        containerPort: 3306
+        protocol: TCP
+
+    env:
+      - name: MYSQL_ROOT_PASSWORD
+        value: root
+
+      - name: MYSQL_DATABASE
+        value: petclinic
+
+      - name: MYSQL_USER
+        value: petclinic
+
+      - name: MYSQL_PASSWORD
+        value: petclinic
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+    persistence:
+      enabled: true
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+
+    volumeMounts:
+      - name: mysql-data
+        mountPath: /var/lib/mysql
+
+    volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+
+    probes:
+      startup:
+        enabled: true
+        tcpSocket:
+          port: 3306
+        failureThreshold: 30
+        periodSeconds: 10
+
+      readiness:
+        enabled: true
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 20
+        periodSeconds: 10
+
+      liveness:
+        enabled: true
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 60
+        periodSeconds: 20

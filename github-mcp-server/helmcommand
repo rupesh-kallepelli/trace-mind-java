@@ -1,0 +1,7 @@
+helm upgrade --install github-mcp ./chart \
+  --set github.token="YOUR_GITHUB_TOKEN" \
+  --set github.secret="YOUR_GITHUB_CLIENT_SECRET" \
+  --set github.clientId="YOUR_GITHUB_CLIENT_ID" \
+  --set docker.pat="YOUR_DOCKER_PAT" \
+  --set docker.username="YOUR_DOCKER_USERNAME" \
+  --set docker.email="YOUR_DOCKER_EMAIL"

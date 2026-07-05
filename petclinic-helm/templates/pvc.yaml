@@ -1,0 +1,30 @@
+{{- range .Values.applications }}
+{{- $app := . }}
+
+{{- if $app.enabled }}
+{{- with $app.persistence }}
+{{- if .enabled }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: {{ $app.name }}-pvc
+
+spec:
+  accessModes:
+{{ toYaml .accessModes | nindent 4 }}
+
+  resources:
+    requests:
+      storage: {{ .size }}
+
+{{- if .storageClass }}
+  storageClassName: {{ .storageClass }}
+{{- end }}
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

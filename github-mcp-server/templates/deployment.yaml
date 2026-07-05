@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "github-mcp-server.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "github-mcp-server.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "github-mcp-server.name" . }}
+    spec:
+      {{- if .Values.docker.pat }}
+      imagePullSecrets:
+        - name: {{ include "github-mcp-server.fullname" . }}-registry
+      {{- end }}
+      containers:
+        - name: github-mcp-server
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args:
+            - "http"
+            - "--port"
+            - "8080"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: GITHUB_PERSONAL_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-mcp-secret
+                  key: github-token
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-mcp-secret
+                  key: github-secret
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-mcp-secret
+                  key: github-client-id
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
