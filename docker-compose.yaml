@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   opensearch:
     image: opensearchproject/opensearch:2.19.1
     container_name: opensearch
@@ -73,7 +72,7 @@ services:
     container_name: github-mcp
 
     environment:
-      GITHUB_PERSONAL_ACCESS_TOKEN: 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
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN}
 
     command:
       - http
@@ -109,7 +108,6 @@ services:
     networks:
       - observability
 
-
   mariadb:
     image: mariadb:11
     container_name: mariadb
@@ -131,7 +129,6 @@ services:
     networks:
       - observability
 
-
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
@@ -150,7 +147,6 @@ services:
 
     networks:
       - observability
-
 
   oracle:
     image: gvenzl/oracle-free:23-slim
