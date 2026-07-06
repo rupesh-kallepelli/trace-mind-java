@@ -1,0 +1,11 @@
+cd /tmp
+
+curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
+
+tar -xzf oc.tar.gz
+
+sudo mv oc /usr/local/bin/
+sudo mv kubectl /usr/local/bin/
+
+oc version --client
+kubectl version --client
