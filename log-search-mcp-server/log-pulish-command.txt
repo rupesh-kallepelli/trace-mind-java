@@ -1,4 +1,4 @@
-curl -X POST "http://localhost:9200/_bulk" \
+curl -X POST "https://opensearch-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com/_bulk" \
 -H "Content-Type: application/x-ndjson" \
 --data-binary '
 {"index":{"_index":"logs-app"}}
@@ -15,7 +15,7 @@ curl -X POST "http://localhost:9200/_bulk" \
 
 
 
-curl -X POST "http://localhost:9200/_bulk" \
+curl -X POST "https://opensearch-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com/_bulk" \
 -H "Content-Type: application/x-ndjson" \
 --data-binary '
 {"index":{"_index":"logs-app"}}

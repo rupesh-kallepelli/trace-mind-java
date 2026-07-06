@@ -14,8 +14,7 @@ public class AppConfig {
 
         return new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost("localhost",9200,"http")
-                )
-        );
+                        new HttpHost("opensearch-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com", 443,
+                                "https")));
     }
 }
