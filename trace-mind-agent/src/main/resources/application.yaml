@@ -1,0 +1,24 @@
+server:
+  port: 8084
+
+spring:
+  ai:
+    vertex:
+      ai:
+        gemini:
+          project-id: deutschebank-aipocs
+          location: us-central1
+          chat:
+            options:
+              model: gemini-2.5-pro
+
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            investigate_application_issue_mcp:
+              url: http://localhost:8083
+              endpoint: /mcp
+agent:
+  main:
+    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime

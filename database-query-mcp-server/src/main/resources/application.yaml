@@ -18,47 +18,15 @@ management:
         include: "*"
 app:
   databases:
-<<<<<<< Updated upstream
-    postgres-db:
-      driver-class-name: org.postgresql.Driver
-      jdbc-url: jdbc:postgresql://localhost:5432/observaai
-      username: postgres
-      password: postgres
-
-    mysql-db:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/observaai
-      username: appuser
-      password: appuser
-
-    mariadb-db:
-      driver-class-name: org.mariadb.jdbc.Driver
-      jdbc-url: jdbc:mariadb://localhost:3307/observaai
-      username: appuser
-      password: appuser
-
-    sqlserver-db:
-      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-      jdbc-url: jdbc:sqlserver://localhost:1433;encrypt=false;trustServerCertificate=true
-      username: sa
-      password: Password@123
-
-    oracle-db:
-      driver-class-name: oracle.jdbc.OracleDriver
-      jdbc-url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
-      username: system
-      password: oracle
-=======
-
     # postgres-db:
     #   driver-class-name: org.postgresql.Driver
     #   jdbc-url: jdbc:postgresql://postgresql:5432/observaai
     #   username: postgres
     #   password: postgres
 
-    mysql-db:
+    petclinic-db:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://mysql:3306/petclinic
+      jdbc-url: jdbc:mysql://localhost:3306/petclinic
       username: petclinic
       password: petclinic
 
@@ -79,4 +47,3 @@ app:
     #   jdbc-url: jdbc:oracle:thin:@oracle:1521/FREEPDB1
     #   username: system
     #   password: oracle
->>>>>>> Stashed changes

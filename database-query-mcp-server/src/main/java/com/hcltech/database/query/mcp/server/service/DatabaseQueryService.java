@@ -5,11 +5,35 @@ import java.util.Map;
 
 public interface DatabaseQueryService {
 
-    long countRows(String databaseName, String tableName);
+    long countRows(
+            String databaseName,
+            String tableName);
 
-    List<Map<String, Object>> searchData(String databaseName, String tableName, String columnName, String value);
+    List<Map<String, Object>> searchData(
+            String databaseName,
+            String tableName,
+            String columnName,
+            String value);
 
-    List<Map<String, Object>> executeSelect(String databaseName, String sql);
+    List<Map<String, Object>> executeSelect(
+            String databaseName,
+            String sql);
 
-    List<Map<String, Object>> sampleRows(String databaseName, String tableName, Integer limit);
+    List<Map<String, Object>> sampleRows(
+            String databaseName,
+            String tableName,
+            Integer limit);
+
+    List<Map<String, Object>> explainQuery(
+            String databaseName,
+            String sql);
+
+    List<Map<String, Object>> findDuplicates(
+            String databaseName,
+            String tableName,
+            String columnName);
+
+    Map<String, Object> searchAllTables(
+            String databaseName,
+            String value);
 }

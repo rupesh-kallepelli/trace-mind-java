@@ -77,3 +77,37 @@ data:
           directory: /loki/rules
 
       rule_path: /tmp/loki/rules
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush 5
+        Log_Level info
+
+    [INPUT]
+        Name tail
+        Path /logs/*.log
+        Tag petclinic.*
+        Read_from_Head true
+
+    [FILTER]
+        Name record_modifier
+        Match petclinic.*
+        Record pod ${POD_NAME}
+        Record namespace ${POD_NAMESPACE}
+        Record service ${SERVICE_NAME}
+
+    [OUTPUT]
+        Name opensearch
+        Match petclinic.*
+        Host opensearch
+        Port 9200
+        Index petclinic-logs
+        Logstash_Format On
+        Suppress_Type_Name On
+        tls Off

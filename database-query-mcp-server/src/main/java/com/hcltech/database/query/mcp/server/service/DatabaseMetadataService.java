@@ -13,7 +13,28 @@ public interface DatabaseMetadataService {
 
     List<String> listViews(String databaseName);
 
-    List<Map<String, Object>> getTableSchema(String databaseName, String tableName);
+    List<Map<String, Object>> getTableSchema(
+            String databaseName,
+            String tableName);
 
-    List<Map<String, Object>> getForeignKeys(String databaseName, String tableName);
+    List<Map<String, Object>> getForeignKeys(
+            String databaseName,
+            String tableName);
+
+    
+    List<Map<String, Object>> getIndexes(
+            String databaseName,
+            String tableName);
+
+    List<Map<String, Object>> getConstraints(
+            String databaseName,
+            String tableName);
+
+    Map<String, Object> relationshipGraph(
+            String databaseName,
+            String tableName);
+
+    Map<String, Object> tableStatistics(
+            String databaseName,
+            String tableName);
 }

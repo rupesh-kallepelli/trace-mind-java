@@ -2,7 +2,10 @@ global:
   imagePullSecrets: []
   commonEnv:
     - name: SPRING_PROFILES_ACTIVE
-      value: docker
+      value: docker,mysql
+
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Dlogging.file.name=/logs/application.log"
 
     - name: CONFIG_SERVER_URL
       value: http://config-server:8888
@@ -71,6 +74,38 @@ applications:
         memory: 256Mi
       limits:
         memory: 512Mi
+
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
     env: []
     envFrom: []
@@ -152,6 +187,38 @@ applications:
         httpGet:
           path: /
           port: 8761
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: customers-service
     enabled: true
@@ -207,6 +274,38 @@ applications:
         httpGet:
           path: /
           port: 8081
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: visits-service
     enabled: true
@@ -262,6 +361,38 @@ applications:
         httpGet:
           path: /actuator/health
           port: 8082
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: vets-service
     enabled: true
@@ -329,6 +460,38 @@ applications:
         periodSeconds: 20
         timeoutSeconds: 5
         failureThreshold: 3
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: api-gateway
     enabled: true
@@ -384,6 +547,38 @@ applications:
         httpGet:
           path: /
           port: 8080
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: tracing-server
     enabled: true
@@ -439,6 +634,38 @@ applications:
         httpGet:
           path: /
           port: 9411
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: admin-server
     enabled: true
@@ -495,6 +722,39 @@ applications:
           path: /
           port: 9090
 
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
   - name: grafana-server
     enabled: true
     replicaCount: 1
@@ -543,6 +803,38 @@ applications:
         enabled: false
       liveness:
         enabled: false
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: prometheus-server
     enabled: true
@@ -619,21 +911,6 @@ applications:
     args:
       - "-config.file=/etc/loki/loki.yaml"
 
-    volumeMounts:
-      - name: loki-config
-        mountPath: /etc/loki
-
-      - name: loki-storage
-        mountPath: /loki
-
-    volumes:
-      - name: loki-config
-        configMap:
-          name: loki-config
-
-      - name: loki-storage
-        emptyDir: {}
-
     resources:
       requests:
         cpu: 100m
@@ -648,6 +925,51 @@ applications:
       enabled: true
       path: /metrics
       port: 3100
+        
+    volumeMounts:
+      - name: loki-config
+        mountPath: /etc/loki
+
+      - name: loki-storage
+        mountPath: /loki
+
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: loki-config
+        configMap:
+          name: loki-config
+
+      - name: loki-storage
+        emptyDir: {}
+
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: kubernetes-mcp
     enabled: true
@@ -716,6 +1038,38 @@ applications:
         enabled: false
 
     terminationGracePeriodSeconds: 30
+
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 
   - name: mysql
     enabled: true

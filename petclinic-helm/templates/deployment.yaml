@@ -73,7 +73,6 @@ spec:
       initContainers:
 {{ toYaml . | nindent 8 }}
 {{- end }}
-
       containers:
         - name: {{ .name }}
           image: "{{ .image.repository }}:{{ default "latest" .image.tag }}"
@@ -130,7 +129,6 @@ spec:
 {{- end }}
 
 {{- with .probes }}
-
 {{- with .startup }}
 {{- if .enabled }}
           startupProbe:
@@ -151,7 +149,48 @@ spec:
 {{ omit . "enabled" | toYaml | nindent 12 }}
 {{- end }}
 {{- end }}
+{{- end }}
+{{- range .sidecars }}
+        - name: {{ .name }}
+          image: {{ .image }}
+          imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+          
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
 
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SERVICE_NAME
+              value: {{ .name }}
+{{- with .command }}
+          command:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .args }}
+          args:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .env }}
+          env:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .resources }}
+          resources:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+
+{{- with .volumeMounts }}
+          volumeMounts:
+{{ toYaml . | nindent 12 }}
+{{- end }}
 {{- end }}
 
 {{- end }}

@@ -9,3 +9,5 @@ sudo mv kubectl /usr/local/bin/
 
 oc version --client
 kubectl version --client
+
+oc port-forward svc/mysql 3306:3306 -n kallepelli-rupesh-dev

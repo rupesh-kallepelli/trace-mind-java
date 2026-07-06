@@ -1,4 +1,4 @@
-helm upgrade --install github-mcp ./chart \
+helm upgrade --install github-mcp . \
   --set github.token="YOUR_GITHUB_TOKEN" \
   --set github.secret="YOUR_GITHUB_CLIENT_SECRET" \
   --set github.clientId="YOUR_GITHUB_CLIENT_ID" \
