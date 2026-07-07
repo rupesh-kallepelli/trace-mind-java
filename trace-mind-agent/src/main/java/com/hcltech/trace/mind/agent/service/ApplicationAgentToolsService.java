@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import io.modelcontextprotocol.spec.McpSchema;
 
 @Service
-public class ToolsTest {
+public class ApplicationAgentToolsService {
 
 
     @McpToolListChanged(clients = "server1")

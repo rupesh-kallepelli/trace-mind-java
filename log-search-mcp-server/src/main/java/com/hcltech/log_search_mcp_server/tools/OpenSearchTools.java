@@ -39,6 +39,7 @@ public class OpenSearchTools {
             SearchSourceBuilder source = new SearchSourceBuilder()
                     .query(QueryBuilders.queryStringQuery(query))
                     .size(100);
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: searchLogsByText result: {}", result);
             return result;
@@ -60,6 +61,7 @@ public class OpenSearchTools {
                                     .gte(startTime)
                                     .lte(endTime))
                     .size(100);
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: searchLogsByTimeRange result size: {}", result.length());
             return result;
@@ -87,6 +89,7 @@ public class OpenSearchTools {
                     .query(boolQuery)
                     .size(100);
 
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: searchLogs result size: {}", result.length());
             return result;
@@ -105,6 +108,7 @@ public class OpenSearchTools {
                     .sort("@timestamp", SortOrder.DESC)
                     .size(100);
 
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: recentErrors result: {}", result);
             return result;
@@ -129,6 +133,7 @@ public class OpenSearchTools {
                             SortOrder.ASC)
                     .size(1000);
 
+            log.debug("Executing OpenSearch query: {}", source);
             SearchResponse response = service.search(source);
             Map<String, Object> resultMap = new LinkedHashMap<>();
             resultMap.put("correlationId", correlationId);
@@ -161,6 +166,7 @@ public class OpenSearchTools {
                                     .size(20))
                     .size(0);
 
+            log.debug("Executing OpenSearch aggregation: {}", source);
             SearchResponse response = service.aggregate(source);
             Terms terms = response.getAggregations().get("exceptions");
             List<Map<String, Object>> buckets = new ArrayList<>();
@@ -188,6 +194,7 @@ public class OpenSearchTools {
             SearchSourceBuilder source = new SearchSourceBuilder()
                     .query(QueryBuilders.matchQuery("exception", exception))
                     .size(100);
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: exceptionAnalysis result size: {}", result.length());
             return result;
@@ -206,6 +213,7 @@ public class OpenSearchTools {
             SearchSourceBuilder source = new SearchSourceBuilder()
                     .query(QueryBuilders.matchQuery(field, value))
                     .size(100);
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: searchByField result size: {}", result.length());
             return result;
@@ -221,6 +229,7 @@ public class OpenSearchTools {
         log.info("MCP Tool: countLogs called for query: {}", query);
         try {
             Map<String, Object> resultMap = new LinkedHashMap<>();
+            log.debug("Executing OpenSearch count for: {}", query);
             resultMap.put("query", query);
             resultMap.put("count", service.count(query));
             String result = objectMapper.writeValueAsString(resultMap);
@@ -244,6 +253,7 @@ public class OpenSearchTools {
                                     .size(100))
                     .size(0);
 
+            log.debug("Executing OpenSearch aggregation: {}", source);
             SearchResponse response = service.aggregate(source);
             Terms terms = response.getAggregations().get("services");
             List<Map<String, Object>> services = new ArrayList<>();
@@ -276,6 +286,7 @@ public class OpenSearchTools {
                                     .size(20))
                     .size(0);
 
+            log.debug("Executing OpenSearch aggregation: {}", source);
             SearchResponse response = service.aggregate(source);
             Terms terms = response.getAggregations().get("services");
             List<Map<String, Object>> services = new ArrayList<>();
@@ -308,6 +319,7 @@ public class OpenSearchTools {
                                             "\"ConnectTimeoutException\""))
                     .size(100);
 
+            log.debug("Executing OpenSearch query: {}", source);
             String result = buildSearchResponse(service.search(source));
             log.debug("MCP Tool: timeoutAnalysis result size: {}", result.length());
             return result;
@@ -331,6 +343,7 @@ public class OpenSearchTools {
                                             DateHistogramInterval.HOUR))
                     .size(0);
 
+            log.debug("Executing OpenSearch aggregation: {}", source);
             SearchResponse response = service.aggregate(source);
             ParsedDateHistogram histogram = response.getAggregations().get("errors_over_time");
             List<Map<String, Object>> buckets = new ArrayList<>();

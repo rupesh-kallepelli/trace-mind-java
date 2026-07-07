@@ -10,4 +10,7 @@ sudo mv kubectl /usr/local/bin/
 oc version --client
 kubectl version --client
 
-oc port-forward svc/mysql 3306:3306 -n kallepelli-rupesh-dev
+oc port-forward svc/mysql 3306:3306 -n kallepelli-rupesh-dev 
+oc port-forward svc/postgres 5432:5432 -n kallepelli-rupesh-dev
+
+oc get rs --no-headers | awk '$2==0 {print $1}' | xargs -r oc delete rs

@@ -11,18 +11,34 @@ spring:
           chat:
             options:
               model: gemini-2.5-pro
+  datasource:
+    url: jdbc:postgresql://localhost:5432/petclinic
+    username: petclinic
+    password: petclinic
+    driver-class-name: org.postgresql.Driver
 
-    mcp:
-      client:
-        request-timeout: 180s
-        streamable-http:
-          connections:
-            investigate_application_issue_mcp:
-              url: http://localhost:8083
-              endpoint: /mcp
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  mcp:
+    client:
+      request-timeout: 300s
+      streamable-http:
+        connections:
+          investigate_application_issue_mcp:
+            url: http://localhost:8083
+            endpoint: /mcp
 agent:
   main:
     tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime,investigate_metrics,investigate_traces
+
+namespace: kallepelli-rupesh-dev
 
 logging:
   level:

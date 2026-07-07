@@ -1,0 +1,50 @@
+package com.hcltech.trace.mind.agent.entities;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "investigations")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Investigation {
+
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    private String serviceName;
+
+    private String namespace;
+
+    @Column(columnDefinition = "TEXT")
+    private String issueDescription;
+
+    private String status;
+
+    @Column(columnDefinition = "TEXT")
+    private String rootCause;
+
+    private Double confidenceScore;
+
+    @Column(columnDefinition = "TEXT")
+    private String reportMarkdown;
+
+    private LocalDateTime startedAt;
+
+    private LocalDateTime completedAt;
+}

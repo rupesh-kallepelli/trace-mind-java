@@ -21,16 +21,20 @@ spring:
         version: 1.0.0
 
       client:
-        request-timeout: 180s
+        request-timeout: 300s
         streamable-http:
           connections:
             database-mcp:
               url: http://localhost:8081
               endpoint: /mcp
 
-            metrics-mcp:
-              url: http://localhost:8085
-              endpoint: /mcp
+            # metrics-mcp:
+            #   url: http://localhost:8085
+            #   endpoint: /mcp
+            
+            # traces-mcp:
+            #   url: http://localhost:8086
+            #   endpoint: /mcp
 
             opensearch-mcp:
               url: http://localhost:8080
