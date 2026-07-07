@@ -30,8 +30,10 @@ public class ApplicationInvestigationAgent {
         @Value("${agent.main.tool-names}")
         private Set<String> toolNames;
 
-        @Value("classpath:/prompts/main-agent.st")
+        @Value("classpath:/prompts/main-agent.md")
         private Resource mainAgentResource;
+        @Value("classpath:/prompts/app-context.md")
+        private Resource appContext;
 
         @Tool(name = "investigate_application_issue", description = """
                         Perform complete root cause analysis.
@@ -44,7 +46,7 @@ public class ApplicationInvestigationAgent {
 
                         Produces a consolidated RCA report.
                         """)
-        public String investigateApplicationIssue(
+        public ApplicationInvestigationResponse investigateApplicationIssue(
 
                         @ToolParam(description = "Application issue description") String issueDescription,
 
@@ -77,14 +79,11 @@ public class ApplicationInvestigationAgent {
                                         .forEach(tool -> log.debug("Available Investigation Agent : {}",
                                                         tool.getToolDefinition().name()));
 
-                        String prompt = mainAgentResource.getContentAsString(StandardCharsets.UTF_8);
+                        String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) +
+                                        "\n" + mainAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(
-                                                        prompt
-                                                                        // + "\n\n"
-                                                                        // + converter.getFormat()
-                                                                )
+                                        .system(prompt + "\n\n" + converter.getFormat())
                                         .user("""
                                                         Perform a complete RCA investigation.
 
@@ -110,16 +109,17 @@ public class ApplicationInvestigationAgent {
                                         .call()
                                         .content();
 
-                        // ApplicationInvestigationResponse response = converter.convert(result);
+                        ApplicationInvestigationResponse response = converter.convert(result);
 
-                        // if (response != null) {
-                        //         response.setIssue(issueDescription);
-                        //         response.setNamespace(namespace);
-                        // }
+                        if (response != null) {
+                                response.setIssue(issueDescription);
+                                response.setNamespace(namespace);
+                        }
 
-                        log.info("Completed RCA investigation for issue [{}], response : [{}]", issueDescription,result);
+                        log.info("Completed RCA investigation for issue [{}], response : [{}]", issueDescription,
+                                        response);
 
-                        return result;
+                        return response;
                 } catch (Exception e) {
                         log.error("MCP Tool: investigateApplicationIssue failed for {}: {}", issueDescription,
                                         e.getMessage(), e);

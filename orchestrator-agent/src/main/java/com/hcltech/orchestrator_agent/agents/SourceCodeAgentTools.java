@@ -30,23 +30,25 @@ public class SourceCodeAgentTools {
         @Value("${agent.sourcecode.tools:search_repositories,search_code,search_issues,search_pull_requests,get_file_contents,get_commit,list_commits,list_branches}")
         private Set<String> githubToolNames;
 
-        @Value("classpath:/prompts/source-code-agent.st")
+        @Value("classpath:/prompts/source-code-agent.md")
         private Resource sourceCodeAgentResource;
+        @Value("classpath:/prompts/app-context.md")
+        private Resource appContext;
 
-        @McpTool(name = "investigate_source_code", description = """
-                        Investigate source code related evidence.
+        // @McpTool(name = "investigate_source_code", description = """
+        // Investigate source code related evidence.
 
-                        Analyze:
-                        - repositories
-                        - classes
-                        - methods
-                        - commits
-                        - pull requests
-                        - recent code changes
+        // Analyze:
+        // - repositories
+        // - classes
+        // - methods
+        // - commits
+        // - pull requests
+        // - recent code changes
 
-                        Return investigation findings.
-                        """)
-        public String investigateSourceCode(
+        // Return investigation findings.
+        // """)
+        public SourceCodeInvestigationResponse investigateSourceCode(
 
                         @McpToolParam(description = "Application issue description") String issueDescription)
                         throws Exception {
@@ -67,7 +69,8 @@ public class SourceCodeAgentTools {
                                                         "Source Code Agent Tool: {}",
                                                         tool.getToolDefinition().name()));
 
-                        String prompt = sourceCodeAgentResource.getContentAsString(StandardCharsets.UTF_8);
+                        String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) +
+                                        "\n" + sourceCodeAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
                                         .system(prompt + "\n\n" + converter.getFormat())
@@ -76,9 +79,9 @@ public class SourceCodeAgentTools {
                                         .call()
                                         .content();
 
-                        // SourceCodeInvestigationResponse response = converter.convert(result);
-                        // log.debug("MCP Tool: investigateSourceCode result: {}", response);
-                        return result;
+                        SourceCodeInvestigationResponse response = converter.convert(result);
+                        log.debug("MCP Tool: investigateSourceCode result: {}", response);
+                        return response;
                 } catch (Exception e) {
                         log.error("MCP Tool: investigateSourceCode failed for {}: {}", issueDescription, e.getMessage(),
                                         e);

@@ -9,12 +9,11 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcltech.orchestrator_agent.response.DatabaseInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -25,14 +24,21 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DatabaseAgentTools {
 
+        private final ObjectMapper objectMapper;
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
 
         @Value("${agent.database.tool-prefix:database_}")
         private String toolPrefix;
 
-        @Value("classpath:/prompts/database-agent.st")
+        @Value("classpath:/prompts/database-agent.md")
         private Resource databaseAgentResource;
+
+        @Value("classpath:/prompts/database-schema.md")
+        private Resource databaseSchema;
+
+        @Value("classpath:/prompts/app-context.md")
+        private Resource appContext;
 
         @McpTool(name = "investigate_database", description = """
                         Analyze database related evidence.
@@ -47,21 +53,8 @@ public class DatabaseAgentTools {
 
                         Return investigation findings.
                         """)
-        @Tool(name = "investigate_database", description = """
-                        Analyze database related evidence.
-
-                        Identify:
-                        - affected tables
-                        - FK violations
-                        - constraint violations
-                        - duplicate records
-                        - missing indexes
-                        - schema related issues
-
-                        Return investigation findings.
-                        """)
-        public String investigateDatabase(
-                        @McpToolParam(description = "Application issue description")@ToolParam(description = "Application issue description") String issueDescription)
+        public DatabaseInvestigationResponse investigateDatabase(
+                        @McpToolParam(description = "Application issue description") String issueDescription)
                         throws Exception {
 
                 log.info("MCP Tool: investigateDatabase called for: {}", issueDescription);
@@ -73,17 +66,16 @@ public class DatabaseAgentTools {
                                         .filter(tool -> {
                                                 String name = tool.getToolDefinition().name();
                                                 return name.startsWith(toolPrefix);
-                                        })
-                                        .toArray(ToolCallback[]::new);
+                                        }).toArray(ToolCallback[]::new);
 
                         log.debug("MCP Tool: investigateDatabase using {} database tools", databaseTools.length);
 
-                        Arrays.stream(databaseTools)
-                                        .forEach(tool -> log.debug(
-                                                        "Database Agent Tool: {}",
-                                                        tool.getToolDefinition().name()));
+                        Arrays.stream(databaseTools).forEach(
+                                        tool -> log.debug("Database Agent Tool: {}", tool.getToolDefinition().name()));
 
-                        String prompt = databaseAgentResource.getContentAsString(StandardCharsets.UTF_8);
+                        String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) +
+                                        "\n" + databaseSchema.getContentAsString(StandardCharsets.UTF_8) +
+                                        "\n" + databaseAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
                                         .system(prompt + "\n\n" + converter.getFormat())
@@ -92,9 +84,10 @@ public class DatabaseAgentTools {
                                         .call()
                                         .content();
 
-                        // DatabaseInvestigationResponse response = converter.convert(result);
-                        log.debug("MCP Tool: investigateDatabase result: {}", result);
-                        return result;
+                        DatabaseInvestigationResponse response = converter.convert(result);
+                        log.debug("MCP Tool: investigateDatabase result: {}",
+                                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
+                        return response;
                 } catch (Exception e) {
                         log.error("MCP Tool: investigateDatabase failed for {}: {}", issueDescription, e.getMessage(),
                                         e);

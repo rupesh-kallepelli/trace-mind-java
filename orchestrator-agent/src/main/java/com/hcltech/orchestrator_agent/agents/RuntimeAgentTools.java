@@ -1,5 +1,6 @@
 package com.hcltech.orchestrator_agent.agents;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Set;
@@ -24,14 +25,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class RuntimeAgentTools {
 
+        private final ObjectMapper objectMapper;
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
 
-        @Value("${agent.runtime.tool-prefixes:pods_,deployment,deployments,events,namespace,node,nodes,service,configmap,ingress}")
+        @Value("${agent.runtime.tool-prefixes:pods_,deployment,deployments,events,node,nodes,service,configmap,ingress}")
         private Set<String> toolPrefixes;
 
-        @Value("classpath:/prompts/runtime-agent.st")
+        @Value("classpath:/prompts/runtime-agent.md")
         private Resource runtimeAgentResource;
+        @Value("classpath:/prompts/app-context.md")
+        private Resource appContext;
 
         @McpTool(name = "investigate_runtime", description = """
                         Investigate Kubernetes runtime health.
@@ -48,53 +52,34 @@ public class RuntimeAgentTools {
 
                         Return investigation findings.
                         """)
-        public String investigateRuntime(
-
+        public RuntimeInvestigationResponse investigateRuntime(
                         @McpToolParam(description = "Application issue description") String issueDescription,
-
                         @McpToolParam(description = "Kubernetes namespace") String namespace) throws Exception {
 
-                log.info(
-                                "MCP Tool: investigateRuntime called for issue [{}] in namespace [{}]",
-                                issueDescription,
-                                namespace);
+                log.info("MCP Tool: investigateRuntime called for issue [{}] in namespace [{}]", namespace);
 
                 try {
 
                         BeanOutputConverter<RuntimeInvestigationResponse> converter = new BeanOutputConverter<>(
                                         RuntimeInvestigationResponse.class);
 
-                        ToolCallback[] kubernetesTools = Arrays.stream(
-                                        toolCallbackProvider.getToolCallbacks())
+                        ToolCallback[] kubernetesTools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
                                         .filter(tool -> {
+                                                String toolName = tool.getToolDefinition().name().toLowerCase();
+                                                return toolPrefixes.stream().anyMatch(toolName::startsWith);
+                                        }).toArray(ToolCallback[]::new);
 
-                                                String toolName = tool.getToolDefinition()
-                                                                .name()
-                                                                .toLowerCase();
-
-                                                return toolPrefixes.stream()
-                                                                .anyMatch(toolName::startsWith);
-
-                                        })
-                                        .toArray(ToolCallback[]::new);
-
-                        log.debug(
-                                        "Runtime Agent discovered {} Kubernetes tools",
-                                        kubernetesTools.length);
+                        log.debug("Runtime Agent discovered {} Kubernetes tools", kubernetesTools.length);
 
                         Arrays.stream(kubernetesTools)
-                                        .forEach(tool -> log.debug(
-                                                        "Runtime Agent Tool: {}",
-                                                        tool.getToolDefinition()
-                                                                        .name()));
+                                        .forEach(tool -> log.debug("Runtime Agent Tool: {}",
+                                                        tool.getToolDefinition().name()));
 
-                        String prompt = runtimeAgentResource.getContentAsString(StandardCharsets.UTF_8);
+                        String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) + "\n"
+                                        + runtimeAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(
-                                                        prompt
-                                                                        + "\n\n"
-                                                                        + converter.getFormat())
+                                        .system(prompt + "\n\n" + converter.getFormat())
                                         .user("""
                                                         Investigate the following runtime issue.
 
@@ -117,33 +102,26 @@ public class RuntimeAgentTools {
 
                                                         Collect evidence and determine the most probable runtime root cause.
                                                         """
-                                                        .formatted(
-                                                                        issueDescription,
-                                                                        namespace))
+                                                        .formatted(issueDescription, namespace))
                                         .toolCallbacks(kubernetesTools)
                                         .call()
                                         .content();
 
-                        // RuntimeInvestigationResponse response = converter.convert(result);
+                        RuntimeInvestigationResponse response = converter.convert(result);
 
-                        // if (response != null) {
-                        //         response.setNamespace(namespace);
-                        // }
+                        if (response != null) {
+                                response.setNamespace(namespace);
+                        }
 
-                        log.debug(
-                                        "MCP Tool: investigateRuntime result: {}",
-                                        result);
+                        log.debug("MCP Tool: investigateRuntime result: {}",
+                                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
 
-                        return result;
+                        return response;
 
                 } catch (Exception e) {
 
-                        log.error(
-                                        "MCP Tool: investigateRuntime failed for issue [{}], namespace [{}]: {}",
-                                        issueDescription,
-                                        namespace,
-                                        e.getMessage(),
-                                        e);
+                        log.error("MCP Tool: investigateRuntime failed for issue [{}], namespace [{}]: {}",
+                                        issueDescription, namespace, e.getMessage(), e);
 
                         throw e;
                 }

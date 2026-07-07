@@ -14,6 +14,7 @@ spring:
 
     mcp:
       client:
+        request-timeout: 180s
         streamable-http:
           connections:
             investigate_application_issue_mcp:
@@ -22,3 +23,11 @@ spring:
 agent:
   main:
     tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.ai.tool: TRACE
+    org.springframework.ai.chat.client: DEBUG
+    org.springframework.ai.vertexai.gemini: DEBUG
+    org.springframework.web.client: DEBUG

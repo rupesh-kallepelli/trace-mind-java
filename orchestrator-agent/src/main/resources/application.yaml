@@ -21,6 +21,7 @@ spring:
         version: 1.0.0
 
       client:
+        request-timeout: 180s
         streamable-http:
           connections:
             database-mcp:
@@ -34,9 +35,9 @@ spring:
             kuberenetes-mcp:
               url: https://kubernetes-mcp-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
               endpoint: /mcp
-            github-mcp:
-              url: https://github-mcp-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
-              endpoint: /mcp
+            # github-mcp:
+            #   url: https://github-mcp-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
+            #   endpoint: /mcp
 
 agent:
   database:
@@ -46,7 +47,8 @@ agent:
   sourcecode:
     tools: search_repositories,search_code,search_issues,search_pull_requests,get_file_contents,get_commit,list_commits,list_branches
   runtime:
-    tool-prefixes: pods_,deployment,deployments,events,namespace,node,nodes,service,configmap,ingress
+    tool-prefixes: pods_,deployment,deployments,events,service,configmap,ingress
+    # tool-prefixes: pods_,deployment,deployments,events,node,nodes,service,configmap,ingress
   main:
     tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime
 

@@ -27,7 +27,7 @@ public class DatabaseMcpTools {
                         return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: listDatabases failed: {}", e.getMessage(), e);
-                        throw e;
+                        return e.getMessage();
                 }
         }
 
@@ -41,7 +41,7 @@ public class DatabaseMcpTools {
                         return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: databaseHealth failed for {}: {}", databaseName, e.getMessage(), e);
-                        throw e;
+                        return e.getMessage();
                 }
         }
 
@@ -55,7 +55,7 @@ public class DatabaseMcpTools {
                         return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: listTables failed for {}: {}", databaseName, e.getMessage(), e);
-                        throw e;
+                        return e.getMessage();
                 }
         }
 
@@ -69,7 +69,7 @@ public class DatabaseMcpTools {
                         return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: listViews failed for {}: {}", databaseName, e.getMessage(), e);
-                        throw e;
+                        return e.getMessage();
                 }
         }
 
@@ -79,12 +79,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Table") String tableName) throws Exception {
                 log.info("MCP Tool: getTableSchema called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(metadataService.getTableSchema(databaseName, tableName));
+                        String result = objectMapper
+                                        .writeValueAsString(metadataService.getTableSchema(databaseName, tableName));
                         log.debug("MCP Tool: getTableSchema result for {}.{}: {}", databaseName, tableName, result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: getTableSchema failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: getTableSchema failed for {}.{}: {}", databaseName, tableName,
+                                        e.getMessage(), e);
+                        return e.getMessage();
                 }
         }
 
@@ -94,12 +96,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Table") String tableName) throws Exception {
                 log.info("MCP Tool: getForeignKeys called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(metadataService.getForeignKeys(databaseName, tableName));
+                        String result = objectMapper
+                                        .writeValueAsString(metadataService.getForeignKeys(databaseName, tableName));
                         log.debug("MCP Tool: getForeignKeys result for {}.{}: {}", databaseName, tableName, result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: getForeignKeys failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: getForeignKeys failed for {}.{}: {}", databaseName, tableName,
+                                        e.getMessage(), e);
+                        return e.getMessage();
                 }
         }
 
@@ -114,7 +118,7 @@ public class DatabaseMcpTools {
                         return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: executeSelect failed for {}: {}", databaseName, e.getMessage(), e);
-                        throw e;
+                        return e.getMessage();
                 }
         }
 
@@ -129,8 +133,9 @@ public class DatabaseMcpTools {
                         log.debug("MCP Tool: countRows result for {}.{}: {}", databaseName, tableName, result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: countRows failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: countRows failed for {}.{}: {}", databaseName, tableName, e.getMessage(),
+                                        e);
+                        return e.getMessage();
                 }
         }
 
@@ -141,12 +146,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Limit") Integer limit) throws Exception {
                 log.info("MCP Tool: sampleRows called for {}.{} (limit: {})", databaseName, tableName, limit);
                 try {
-                        String result = objectMapper.writeValueAsString(queryService.sampleRows(databaseName, tableName, limit));
+                        String result = objectMapper
+                                        .writeValueAsString(queryService.sampleRows(databaseName, tableName, limit));
                         log.debug("MCP Tool: sampleRows result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: sampleRows failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: sampleRows failed for {}.{}: {}", databaseName, tableName, e.getMessage(),
+                                        e);
+                        return e.getMessage();
                 }
         }
 
@@ -158,12 +165,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Value") String value) throws Exception {
                 log.info("MCP Tool: searchData called for {}.{} ({}={})", databaseName, tableName, columnName, value);
                 try {
-                        String result = objectMapper.writeValueAsString(queryService.searchData(databaseName, tableName, columnName, value));
+                        String result = objectMapper.writeValueAsString(
+                                        queryService.searchData(databaseName, tableName, columnName, value));
                         log.debug("MCP Tool: searchData result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: searchData failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: searchData failed for {}.{}: {}", databaseName, tableName, e.getMessage(),
+                                        e);
+                        return e.getMessage();
                 }
         }
 
@@ -173,12 +182,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Table") String tableName) throws Exception {
                 log.info("MCP Tool: getIndexes called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(metadataService.getIndexes(databaseName, tableName));
+                        String result = objectMapper
+                                        .writeValueAsString(metadataService.getIndexes(databaseName, tableName));
                         log.debug("MCP Tool: getIndexes result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: getIndexes failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: getIndexes failed for {}.{}: {}", databaseName, tableName, e.getMessage(),
+                                        e);
+                        return e.getMessage();
                 }
         }
 
@@ -188,12 +199,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Table") String tableName) throws Exception {
                 log.info("MCP Tool: getConstraints called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(metadataService.getConstraints(databaseName, tableName));
+                        String result = objectMapper
+                                        .writeValueAsString(metadataService.getConstraints(databaseName, tableName));
                         log.debug("MCP Tool: getConstraints result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: getConstraints failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: getConstraints failed for {}.{}: {}", databaseName, tableName,
+                                        e.getMessage(), e);
+                        return e.getMessage();
                 }
         }
 
@@ -203,12 +216,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Table") String tableName) throws Exception {
                 log.info("MCP Tool: relationshipGraph called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(metadataService.relationshipGraph(databaseName, tableName));
+                        String result = objectMapper
+                                        .writeValueAsString(metadataService.relationshipGraph(databaseName, tableName));
                         log.debug("MCP Tool: relationshipGraph result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: relationshipGraph failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: relationshipGraph failed for {}.{}: {}", databaseName, tableName,
+                                        e.getMessage(), e);
+                        return e.getMessage();
                 }
         }
 
@@ -218,12 +233,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Table") String tableName) throws Exception {
                 log.info("MCP Tool: tableStatistics called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(metadataService.tableStatistics(databaseName, tableName));
+                        String result = objectMapper
+                                        .writeValueAsString(metadataService.tableStatistics(databaseName, tableName));
                         log.debug("MCP Tool: tableStatistics result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: tableStatistics failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: tableStatistics failed for {}.{}: {}", databaseName, tableName,
+                                        e.getMessage(), e);
+                        return e.getMessage();
                 }
         }
 
@@ -238,7 +255,7 @@ public class DatabaseMcpTools {
                         return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: explainQuery failed for {}: {}", databaseName, e.getMessage(), e);
-                        throw e;
+                        return e.getMessage();
                 }
         }
 
@@ -249,12 +266,14 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Column") String columnName) throws Exception {
                 log.info("MCP Tool: findDuplicates called for {}.{}", databaseName, tableName);
                 try {
-                        String result = objectMapper.writeValueAsString(queryService.findDuplicates(databaseName, tableName, columnName));
+                        String result = objectMapper.writeValueAsString(
+                                        queryService.findDuplicates(databaseName, tableName, columnName));
                         log.debug("MCP Tool: findDuplicates result: {}", result);
                         return result;
                 } catch (Exception e) {
-                        log.error("MCP Tool: findDuplicates failed for {}.{}: {}", databaseName, tableName, e.getMessage(), e);
-                        throw e;
+                        log.error("MCP Tool: findDuplicates failed for {}.{}: {}", databaseName, tableName,
+                                        e.getMessage(), e);
+                        return e.getMessage();
                 }
         }
 
@@ -264,7 +283,8 @@ public class DatabaseMcpTools {
                         @McpToolParam(description = "Value") String value) throws Exception {
                 log.info("MCP Tool: searchAllTables called for {}", databaseName);
                 try {
-                        String result = objectMapper.writeValueAsString(queryService.searchAllTables(databaseName, value));
+                        String result = objectMapper
+                                        .writeValueAsString(queryService.searchAllTables(databaseName, value));
                         log.debug("MCP Tool: searchAllTables result: {}", result);
                         return result;
                 } catch (Exception e) {

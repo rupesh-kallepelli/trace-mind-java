@@ -1,16 +1,14 @@
 package com.hcltech.trace.mind.agent.controller;
 
-import java.util.Arrays;
-
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.tool.ToolCallback;
-import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hcltech.trace.mind.agent.response.ApplicationInvestigationResponse;
 import com.hcltech.trace.mind.agent.tools.ApplicationInvestigationAgent;
 
 import lombok.RequiredArgsConstructor;
@@ -22,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ObservaAIController {
 
-        private final ChatClient chatClient;
-        // private final ToolCallbackProvider toolCallbackProvider;
         private final ApplicationInvestigationAgent applicationInvestigationAgent;
+        private final ChatClient chatClient;
+
         private static final String SYSTEM_PROMPT = """
                         You are ObservaAI.
 
@@ -46,41 +44,43 @@ public class ObservaAIController {
                         """;
 
         @GetMapping("/analyze")
-        public ResponseEntity<String> analyze(
+        public ResponseEntity<ApplicationInvestigationResponse> analyze(
                         @RequestParam String issue,
-                        @RequestParam String namespace) {
+                        @RequestParam String namespace) throws Exception {
+                try {
+                        BeanOutputConverter<ApplicationInvestigationResponse> converter = new BeanOutputConverter<>(
+                                        ApplicationInvestigationResponse.class);
+                        String clientResponse = chatClient.prompt()
+                                          .system(SYSTEM_PROMPT + "\n\n" + converter.getFormat())
+                                        .user("""
+                                                        Analyze the following production issue.
 
-                // ToolCallback[] tools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
-                // .filter(tool -> {
+                                                        Issue:
+                                                        %s
 
-                // String name = tool.getToolDefinition().name();
+                                                        Namespace:
+                                                        %s
+                                                        """
+                                                        .formatted(issue, namespace))
+                                        .tools(applicationInvestigationAgent)
+                                        .call()
+                                        .content();
 
-                // return name!= null && name.startsWith("investigate_");
-                // })
-                // .toArray(ToolCallback[]::new);
-                // log.info("===== TOOLS PASSED TO MODEL =====");
+                        ApplicationInvestigationResponse response = converter.convert(clientResponse);
 
-                // Arrays.stream(tools)
-                // .forEach(tool -> log.info(
-                // "Tool: {}",
-                // tool.getToolDefinition().name()));
+                        if (response != null) {
+                                response.setIssue(issue);
+                                response.setNamespace(namespace);
+                        }
 
-                String response = chatClient.prompt()
-                                .system(SYSTEM_PROMPT)
-                                .user("""
-                                                Analyze the following production issue.
+                        log.info("Completed RCA investigation for issue [{}], response : [{}]", issue, response);
+                        return ResponseEntity.ok(response);
+                } catch (Exception e) {
+                        log.error("MCP Tool: investigateApplicationIssue failed for {}: {}", issue,
+                                        e.getMessage(), e);
+                        throw e;
+                }
 
-                                                Issue:
-                                                %s
-
-                                                Namespace:
-                                                %s
-                                                """
-                                                .formatted(issue, namespace))
-                                .tools(applicationInvestigationAgent)
-                                .call()
-                                .content();
-
-                return ResponseEntity.ok(response);
         }
+
 }
