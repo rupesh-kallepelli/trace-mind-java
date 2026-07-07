@@ -274,7 +274,7 @@ Unable to register pet.
 
 Responsible Service
 
-spring-petclinic-customers-service
+customers-service
 
 Investigate
 

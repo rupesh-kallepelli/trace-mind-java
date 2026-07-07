@@ -51,25 +51,25 @@ REPOSITORY STRUCTURE
 
 Business Services
 
-• spring-petclinic-customers-service
+• customers-service
 
-• spring-petclinic-vets-service
+• vets-service
 
-• spring-petclinic-visits-service
+• visits-service
 
 Platform Services
 
-• spring-petclinic-api-gateway
+• api-gateway
 
-• spring-petclinic-config-server
+• config-server
 
-• spring-petclinic-discovery-server
+• discovery-server
 
-• spring-petclinic-admin-server
+• admin-server
 
 Infrastructure
 
-• spring-petclinic-chart
+• chart
 
 • docs
 
@@ -79,7 +79,7 @@ Infrastructure
 MICROSERVICE RESPONSIBILITIES
 ================================================================================
 
-spring-petclinic-customers-service
+customers-service
 
 Business Capability
 
@@ -117,7 +117,7 @@ Does NOT own
 
 --------------------------------------------------------------------------------
 
-spring-petclinic-vets-service
+vets-service
 
 Business Capability
 
@@ -149,7 +149,7 @@ Does NOT own
 
 --------------------------------------------------------------------------------
 
-spring-petclinic-visits-service
+visits-service
 
 Business Capability
 
@@ -177,7 +177,7 @@ Depends On
 
 --------------------------------------------------------------------------------
 
-spring-petclinic-api-gateway
+api-gateway
 
 Business Capability
 
@@ -195,7 +195,7 @@ Business logic should NOT exist here.
 
 --------------------------------------------------------------------------------
 
-spring-petclinic-config-server
+config-server
 
 Business Capability
 
@@ -211,7 +211,7 @@ No business logic.
 
 --------------------------------------------------------------------------------
 
-spring-petclinic-discovery-server
+discovery-server
 
 Business Capability
 
@@ -227,7 +227,7 @@ No business logic.
 
 --------------------------------------------------------------------------------
 
-spring-petclinic-admin-server
+admin-server
 
 Business Capability
 
@@ -247,91 +247,91 @@ BUSINESS CAPABILITY MAPPING
 
 Owner Registration
 
-→ spring-petclinic-customers-service
+→ customers-service
 
 --------------------------------------------------------------------------------
 
 Owner Search
 
-→ spring-petclinic-customers-service
+→ customers-service
 
 --------------------------------------------------------------------------------
 
 Owner Update
 
-→ spring-petclinic-customers-service
+→ customers-service
 
 --------------------------------------------------------------------------------
 
 Pet Registration
 
-→ spring-petclinic-customers-service
+→ customers-service
 
 --------------------------------------------------------------------------------
 
 Pet Search
 
-→ spring-petclinic-customers-service
+→ customers-service
 
 --------------------------------------------------------------------------------
 
 Pet Update
 
-→ spring-petclinic-customers-service
+→ customers-service
 
 --------------------------------------------------------------------------------
 
 Veterinarian Listing
 
-→ spring-petclinic-vets-service
+→ vets-service
 
 --------------------------------------------------------------------------------
 
 Veterinarian Management
 
-→ spring-petclinic-vets-service
+→ vets-service
 
 --------------------------------------------------------------------------------
 
 Visit Creation
 
-→ spring-petclinic-visits-service
+→ visits-service
 
 --------------------------------------------------------------------------------
 
 Visit Update
 
-→ spring-petclinic-visits-service
+→ visits-service
 
 --------------------------------------------------------------------------------
 
 Visit History
 
-→ spring-petclinic-visits-service
+→ visits-service
 
 --------------------------------------------------------------------------------
 
 Configuration Loading
 
-→ spring-petclinic-config-server
+→ config-server
 
 --------------------------------------------------------------------------------
 
 Service Discovery
 
-→ spring-petclinic-discovery-server
+→ discovery-server
 
 --------------------------------------------------------------------------------
 
 API Routing
 
-→ spring-petclinic-api-gateway
+→ api-gateway
 
 --------------------------------------------------------------------------------
 
 Application Monitoring
 
-→ spring-petclinic-admin-server
+→ admin-server
 
 ================================================================================
 APPLICATION REQUEST FLOW
@@ -371,27 +371,11 @@ External Client
 
 ↓
 
-spring-petclinic-api-gateway
+api-gateway
 
 ↓
 
-spring-petclinic-customers-service
-
-↓
-
-Database
-
-------------------------------------------------------------
-
-External Client
-
-↓
-
-spring-petclinic-api-gateway
-
-↓
-
-spring-petclinic-vets-service
+customers-service
 
 ↓
 
@@ -403,11 +387,27 @@ External Client
 
 ↓
 
-spring-petclinic-api-gateway
+api-gateway
 
 ↓
 
-spring-petclinic-visits-service
+vets-service
+
+↓
+
+Database
+
+------------------------------------------------------------
+
+External Client
+
+↓
+
+api-gateway
+
+↓
+
+visits-service
 
 ↓
 
@@ -417,9 +417,9 @@ Database
 
 Business services depend on:
 
-• spring-petclinic-config-server
+• config-server
 
-• spring-petclinic-discovery-server
+• discovery-server
 
 for configuration and service registration.
 
@@ -431,7 +431,7 @@ Owners
 
 Owned By
 
-spring-petclinic-customers-service
+customers-service
 
 ------------------------------------------------------------
 
@@ -439,7 +439,7 @@ Pets
 
 Owned By
 
-spring-petclinic-customers-service
+customers-service
 
 ------------------------------------------------------------
 
@@ -447,7 +447,7 @@ Pet Types
 
 Owned By
 
-spring-petclinic-customers-service
+customers-service
 
 ------------------------------------------------------------
 
@@ -455,7 +455,7 @@ Veterinarians
 
 Owned By
 
-spring-petclinic-vets-service
+vets-service
 
 ------------------------------------------------------------
 
@@ -463,7 +463,7 @@ Specialties
 
 Owned By
 
-spring-petclinic-vets-service
+vets-service
 
 ------------------------------------------------------------
 
@@ -471,7 +471,7 @@ Visits
 
 Owned By
 
-spring-petclinic-visits-service
+visits-service
 
 ================================================================================
 INVESTIGATION GUIDELINES
@@ -501,13 +501,13 @@ Pet Registration
 
 Responsible Service
 
-spring-petclinic-customers-service
+customers-service
 
 Do not investigate:
 
-• spring-petclinic-vets-service
+• vets-service
 
-• spring-petclinic-visits-service
+• visits-service
 
 unless evidence proves they are involved.
 

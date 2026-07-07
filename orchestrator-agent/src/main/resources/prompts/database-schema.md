@@ -36,7 +36,7 @@ Business ownership of tables is still defined by the owning microservice.
 MICROSERVICE TO TABLE OWNERSHIP
 ================================================================================
 
-spring-petclinic-customers-service
+customers-service
 
 Owns
 
@@ -46,7 +46,7 @@ Owns
 
 ------------------------------------------------------------
 
-spring-petclinic-vets-service
+vets-service
 
 Owns
 
@@ -56,7 +56,7 @@ Owns
 
 ------------------------------------------------------------
 
-spring-petclinic-visits-service
+visits-service
 
 Owns
 
@@ -72,7 +72,7 @@ owners
 
 Owned By
 
-spring-petclinic-customers-service
+customers-service
 
 Columns
 
@@ -104,7 +104,7 @@ types
 
 Owned By
 
-spring-petclinic-customers-service
+customers-service
 
 Columns
 
@@ -128,7 +128,7 @@ pets
 
 Owned By
 
-spring-petclinic-customers-service
+customers-service
 
 Columns
 
@@ -170,7 +170,7 @@ vets
 
 Owned By
 
-spring-petclinic-vets-service
+vets-service
 
 Columns
 
@@ -196,7 +196,7 @@ specialties
 
 Owned By
 
-spring-petclinic-vets-service
+vets-service
 
 Columns
 
@@ -220,7 +220,7 @@ vet_specialties
 
 Owned By
 
-spring-petclinic-vets-service
+vets-service
 
 Columns
 
@@ -250,7 +250,7 @@ visits
 
 Owned By
 
-spring-petclinic-visits-service
+visits-service
 
 Columns
 
@@ -524,7 +524,7 @@ Unable to register pet.
 
 Responsible Service
 
-spring-petclinic-customers-service
+customers-service
 
 Relevant Tables
 
