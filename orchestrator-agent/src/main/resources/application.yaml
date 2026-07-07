@@ -27,7 +27,11 @@ spring:
             database-mcp:
               url: http://localhost:8081
               endpoint: /mcp
-            
+
+            metrics-mcp:
+              url: http://localhost:8085
+              endpoint: /mcp
+
             opensearch-mcp:
               url: http://localhost:8080
               endpoint: /mcp
@@ -51,6 +55,10 @@ agent:
     # tool-prefixes: pods_,deployment,deployments,events,node,nodes,service,configmap,ingress
   main:
     tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime
+  metrics:
+    tool-prefixes: metric_
+  traces:
+    tool-prefixes: trace_
 
 logging:
   level:

@@ -1,0 +1,61 @@
+curl -X POST "https://opensearch-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com/_bulk" \
+-H "Content-Type: application/x-ndjson" \
+--data-binary '
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T02:00:00Z","level":"INFO","application":"orders-service","correlationId":"corr-2001","message":"Order received","host":"pod-01"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T02:01:00Z","level":"INFO","application":"orders-service","correlationId":"corr-2001","message":"Validating order","host":"pod-01"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T02:02:00Z","level":"WARN","application":"orders-service","correlationId":"corr-2001","message":"External service latency high","host":"pod-01"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T02:03:00Z","level":"ERROR","application":"orders-service","correlationId":"corr-2001","message":"Timeout calling payment API","exception":"java.net.SocketTimeoutException","host":"pod-01"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T02:04:00Z","level":"ERROR","application":"orders-service","correlationId":"corr-2002","message":"Database connection failed","exception":"org.postgresql.util.PSQLException","host":"pod-02"}
+'
+
+
+
+curl -X POST "https://opensearch-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com/_bulk" \
+-H "Content-Type: application/x-ndjson" \
+--data-binary '
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:00:01Z","level":"ERROR","application":"payments-service","correlationId":"corr-1001","host":"pod-01","exception":"java.lang.NullPointerException","message":"Null pointer while validating payment request"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:01:02Z","level":"ERROR","application":"payments-service","correlationId":"corr-1002","host":"pod-01","exception":"java.net.SocketTimeoutException","message":"Timeout calling account service"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:02:03Z","level":"ERROR","application":"orders-service","correlationId":"corr-1003","host":"pod-02","exception":"org.postgresql.util.PSQLException","message":"Database connection failed"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:03:04Z","level":"ERROR","application":"inventory-service","correlationId":"corr-1004","host":"pod-03","exception":"java.lang.IllegalArgumentException","message":"Invalid inventory request"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:04:05Z","level":"ERROR","application":"payments-service","correlationId":"corr-1005","host":"pod-01","exception":"java.lang.NullPointerException","message":"Payment payload is null"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:05:06Z","level":"ERROR","application":"orders-service","correlationId":"corr-1006","host":"pod-02","exception":"java.net.SocketTimeoutException","message":"Timeout while calling payment API"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:06:07Z","level":"ERROR","application":"inventory-service","correlationId":"corr-1007","host":"pod-03","exception":"java.lang.RuntimeException","message":"Inventory refresh failed"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:07:08Z","level":"ERROR","application":"orders-service","correlationId":"corr-1008","host":"pod-02","exception":"java.lang.NullPointerException","message":"Order object was null"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:08:09Z","level":"ERROR","application":"payments-service","correlationId":"corr-1009","host":"pod-01","exception":"java.io.IOException","message":"Unable to read payment response"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:09:10Z","level":"ERROR","application":"inventory-service","correlationId":"corr-1010","host":"pod-03","exception":"org.opensearch.OpenSearchException","message":"OpenSearch query failed"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:10:11Z","level":"ERROR","application":"payments-service","correlationId":"corr-1011","host":"pod-01","exception":"java.lang.NullPointerException","message":"Customer id missing"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:11:12Z","level":"ERROR","application":"orders-service","correlationId":"corr-1012","host":"pod-02","exception":"java.net.ConnectException","message":"Unable to connect to customer service"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:12:13Z","level":"ERROR","application":"inventory-service","correlationId":"corr-1013","host":"pod-03","exception":"java.lang.IllegalStateException","message":"Inventory state corrupted"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:13:14Z","level":"ERROR","application":"payments-service","correlationId":"corr-1014","host":"pod-01","exception":"java.lang.RuntimeException","message":"Payment workflow failed"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:14:15Z","level":"ERROR","application":"orders-service","correlationId":"corr-1015","host":"pod-02","exception":"java.net.SocketTimeoutException","message":"Timeout calling inventory service"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:15:16Z","level":"ERROR","application":"inventory-service","correlationId":"corr-1016","host":"pod-03","exception":"java.lang.NullPointerException","message":"SKU information missing"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:16:17Z","level":"ERROR","application":"payments-service","correlationId":"corr-1017","host":"pod-01","exception":"java.lang.ArrayIndexOutOfBoundsException","message":"Card index outside valid range"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:17:18Z","level":"ERROR","application":"orders-service","correlationId":"corr-1018","host":"pod-02","exception":"java.io.IOException","message":"Unable to deserialize order response"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:18:19Z","level":"ERROR","application":"inventory-service","correlationId":"corr-1019","host":"pod-03","exception":"java.lang.RuntimeException","message":"Inventory sync failed"}
+{"index":{"_index":"logs-app"}}
+{"@timestamp":"2026-07-03T01:19:20Z","level":"ERROR","application":"payments-service","correlationId":"corr-1020","host":"pod-01","exception":"java.net.SocketTimeoutException","message":"Fraud service timeout"}
+'

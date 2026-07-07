@@ -1,15 +1,15 @@
 server:
-  port: 8085
+  port: 8086
 spring:
   application:
-    name: metrics_mcp
+    name: traces_mcp
   ai:
     mcp:
       server:
 #        comment below for making server STDIO
         protocol: STREAMABLE
         enabled: true
-        name: metrics_mcp
+        name: traces_mcp
         version: 1.0.0
 management:
   endpoints:
@@ -17,5 +17,5 @@ management:
       exposure:
         include: "*"
 
-prometheus:
-  url: https://prometheus-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com:443
+zipkin:
+  url: https://tracing-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com:443

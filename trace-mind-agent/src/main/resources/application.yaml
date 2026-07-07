@@ -22,7 +22,7 @@ spring:
               endpoint: /mcp
 agent:
   main:
-    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime
+    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime,investigate_metrics,investigate_traces
 
 logging:
   level:
