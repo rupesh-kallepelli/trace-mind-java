@@ -55,30 +55,31 @@ public class RuntimeAgentTools {
 
                 try {
 
-                        // BeanOutputConverter<RuntimeInvestigationResponse> converter = new BeanOutputConverter<>(
-                        //                 RuntimeInvestigationResponse.class);
+                        // BeanOutputConverter<RuntimeInvestigationResponse> converter = new
+                        // BeanOutputConverter<>(
+                        // RuntimeInvestigationResponse.class);
 
                         ToolCallback[] kubernetesTools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
                                         .filter(tool -> {
                                                 String toolName = tool.getToolDefinition().name().toLowerCase();
                                                 return toolPrefixes.stream().anyMatch(toolName::startsWith);
                                         })
-                                        .filter(tool-> !tool.getToolDefinition().name().toLowerCase().equals("pod_exec"))
+                                        .filter(tool -> !tool.getToolDefinition().name().toLowerCase()
+                                                        .equals("pods_exec"))
                                         .toArray(ToolCallback[]::new);
 
                         log.debug("Runtime Agent discovered {} Kubernetes tools", kubernetesTools.length);
 
                         Arrays.stream(kubernetesTools)
                                         .forEach(tool -> log.debug("Runtime Agent Tool: {}",
-
                                                         tool.getToolDefinition().name()));
 
                         String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) + "\n"
                                         + runtimeAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(prompt 
-                                                // + "\n\n" + converter.getFormat()
+                                        .system(prompt
+                                        // + "\n\n" + converter.getFormat()
                                         )
                                         .user("""
                                                         Investigate the following runtime issue.
@@ -110,11 +111,11 @@ public class RuntimeAgentTools {
                         // RuntimeInvestigationResponse response = converter.convert(result);
 
                         // if (response != null) {
-                        //         response.setNamespace(namespace);
+                        // response.setNamespace(namespace);
                         // }
 
                         log.debug("MCP Tool: investigateRuntime result: {}",
-                                      result);
+                                        result);
 
                         return result;
 
