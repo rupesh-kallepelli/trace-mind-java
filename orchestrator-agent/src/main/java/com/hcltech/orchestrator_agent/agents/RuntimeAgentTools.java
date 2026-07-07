@@ -7,14 +7,11 @@ import java.util.Set;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-
-import com.hcltech.orchestrator_agent.response.RuntimeInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,8 +55,8 @@ public class RuntimeAgentTools {
 
                 try {
 
-                        BeanOutputConverter<RuntimeInvestigationResponse> converter = new BeanOutputConverter<>(
-                                        RuntimeInvestigationResponse.class);
+                        // BeanOutputConverter<RuntimeInvestigationResponse> converter = new BeanOutputConverter<>(
+                        //                 RuntimeInvestigationResponse.class);
 
                         ToolCallback[] kubernetesTools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
                                         .filter(tool -> {
@@ -80,7 +77,9 @@ public class RuntimeAgentTools {
                                         + runtimeAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(prompt + "\n\n" + converter.getFormat())
+                                        .system(prompt 
+                                                // + "\n\n" + converter.getFormat()
+                                        )
                                         .user("""
                                                         Investigate the following runtime issue.
 

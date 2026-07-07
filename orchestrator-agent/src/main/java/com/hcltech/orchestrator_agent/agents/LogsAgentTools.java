@@ -6,14 +6,11 @@ import java.util.Arrays;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-
-import com.hcltech.orchestrator_agent.response.LogInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +38,8 @@ public class LogsAgentTools {
 
                 log.info("MCP Tool: investigateLogs called for: {}", issueDescription);
                 try {
-                        BeanOutputConverter<LogInvestigationResponse> converter = new BeanOutputConverter<>(
-                                        LogInvestigationResponse.class);
+                        // BeanOutputConverter<LogInvestigationResponse> converter = new BeanOutputConverter<>(
+                        //                 LogInvestigationResponse.class);
 
                         ToolCallback[] logTools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
                                         .filter(tool -> {
@@ -62,7 +59,9 @@ public class LogsAgentTools {
                                         "\n" + logAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(prompt + "\n\n" + converter.getFormat())
+                                        .system(prompt 
+                                                // + "\n\n" + converter.getFormat()
+                                        )
                                         .user("Investigate issue: " + issueDescription)
                                         .toolCallbacks(logTools)
                                         .call()

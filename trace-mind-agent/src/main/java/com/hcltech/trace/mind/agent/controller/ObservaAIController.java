@@ -1,14 +1,12 @@
 package com.hcltech.trace.mind.agent.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hcltech.trace.mind.agent.response.ApplicationInvestigationResponse;
 import com.hcltech.trace.mind.agent.tools.ApplicationInvestigationAgent;
 
 import lombok.RequiredArgsConstructor;
@@ -44,14 +42,17 @@ public class ObservaAIController {
                         """;
 
         @GetMapping("/analyze")
-        public ResponseEntity<ApplicationInvestigationResponse> analyze(
+        public ResponseEntity<String> analyze(
                         @RequestParam String issue,
                         @RequestParam String namespace) throws Exception {
                 try {
-                        BeanOutputConverter<ApplicationInvestigationResponse> converter = new BeanOutputConverter<>(
-                                        ApplicationInvestigationResponse.class);
+                        // BeanOutputConverter<ApplicationInvestigationResponse> converter = new
+                        // BeanOutputConverter<>(
+                        // ApplicationInvestigationResponse.class);
                         String clientResponse = chatClient.prompt()
-                                          .system(SYSTEM_PROMPT + "\n\n" + converter.getFormat())
+                                        .system(SYSTEM_PROMPT
+                                        // + "\n\n" + converter.getFormat()
+                                        )
                                         .user("""
                                                         Analyze the following production issue.
 
@@ -66,18 +67,18 @@ public class ObservaAIController {
                                         .call()
                                         .content();
 
-                        ApplicationInvestigationResponse response = converter.convert(clientResponse);
+                        // ApplicationInvestigationResponse response =
+                        // converter.convert(clientResponse);
 
-                        if (response != null) {
-                                response.setIssue(issue);
-                                response.setNamespace(namespace);
-                        }
+                        // if (response != null) {
+                        // response.setIssue(issue);
+                        // response.setNamespace(namespace);
+                        // }
 
-                        log.info("Completed RCA investigation for issue [{}], response : [{}]", issue, response);
-                        return ResponseEntity.ok(response);
+                        log.info("Completed RCA investigation for issue [{}], response : [{}]", issue, clientResponse);
+                        return ResponseEntity.ok(clientResponse);
                 } catch (Exception e) {
-                        log.error("MCP Tool: investigateApplicationIssue failed for {}: {}", issue,
-                                        e.getMessage(), e);
+                        log.error("MCP Tool: investigateApplicationIssue failed for {}: {}", issue, e.getMessage(), e);
                         throw e;
                 }
 

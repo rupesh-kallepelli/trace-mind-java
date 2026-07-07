@@ -6,14 +6,11 @@ import java.util.Arrays;
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-
-import com.hcltech.orchestrator_agent.response.DatabaseInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,8 +55,8 @@ public class DatabaseAgentTools {
 
                 log.info("MCP Tool: investigateDatabase called for: {}", issueDescription);
                 try {
-                        BeanOutputConverter<DatabaseInvestigationResponse> converter = new BeanOutputConverter<>(
-                                        DatabaseInvestigationResponse.class);
+                        // BeanOutputConverter<DatabaseInvestigationResponse> converter = new BeanOutputConverter<>(
+                        //                 DatabaseInvestigationResponse.class);
 
                         ToolCallback[] databaseTools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
                                         .filter(tool -> {
@@ -77,7 +74,9 @@ public class DatabaseAgentTools {
                                         "\n" + databaseAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(prompt + "\n\n" + converter.getFormat())
+                                        .system(prompt 
+                                                // + "\n\n" + converter.getFormat()
+                                        )
                                         .user("Investigate database related evidence for issue: " + issueDescription)
                                         .toolCallbacks(databaseTools)
                                         .call()

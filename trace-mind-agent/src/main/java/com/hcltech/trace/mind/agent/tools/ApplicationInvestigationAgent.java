@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.annotation.Tool;
@@ -13,8 +12,6 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-
-import com.hcltech.trace.mind.agent.response.ApplicationInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +43,7 @@ public class ApplicationInvestigationAgent {
 
                         Produces a consolidated RCA report.
                         """)
-        public ApplicationInvestigationResponse investigateApplicationIssue(
+        public String investigateApplicationIssue(
 
                         @ToolParam(description = "Application issue description") String issueDescription,
 
@@ -58,8 +55,8 @@ public class ApplicationInvestigationAgent {
                 log.info("filter for {}", toolNames);
 
                 try {
-                        BeanOutputConverter<ApplicationInvestigationResponse> converter = new BeanOutputConverter<>(
-                                        ApplicationInvestigationResponse.class);
+                        // BeanOutputConverter<ApplicationInvestigationResponse> converter = new BeanOutputConverter<>(
+                        //                 ApplicationInvestigationResponse.class);
 
                         ToolCallback[] investigationAgents = Arrays.stream(
                                         toolCallbackProvider.getToolCallbacks())
@@ -83,7 +80,9 @@ public class ApplicationInvestigationAgent {
                                         "\n" + mainAgentResource.getContentAsString(StandardCharsets.UTF_8);
 
                         String result = chatClient.prompt()
-                                        .system(prompt + "\n\n" + converter.getFormat())
+                                        .system(prompt 
+                                                // + "\n\n" + converter.getFormat()
+                                        )
                                         .user("""
                                                         Perform a complete RCA investigation.
 
@@ -109,17 +108,17 @@ public class ApplicationInvestigationAgent {
                                         .call()
                                         .content();
 
-                        ApplicationInvestigationResponse response = converter.convert(result);
+                        // ApplicationInvestigationResponse response = converter.convert(result);
 
-                        if (response != null) {
-                                response.setIssue(issueDescription);
-                                response.setNamespace(namespace);
-                        }
+                        // if (response != null) {
+                        //         response.setIssue(issueDescription);
+                        //         response.setNamespace(namespace);
+                        // }
 
                         log.info("Completed RCA investigation for issue [{}], response : [{}]", issueDescription,
-                                        response);
+                                        result);
 
-                        return response;
+                        return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: investigateApplicationIssue failed for {}: {}", issueDescription,
                                         e.getMessage(), e);
