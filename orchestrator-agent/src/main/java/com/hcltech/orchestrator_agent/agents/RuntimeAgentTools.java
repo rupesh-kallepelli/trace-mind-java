@@ -1,6 +1,5 @@
 package com.hcltech.orchestrator_agent.agents;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Set;
@@ -25,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class RuntimeAgentTools {
 
-        private final ObjectMapper objectMapper;
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
 
@@ -52,7 +50,7 @@ public class RuntimeAgentTools {
 
                         Return investigation findings.
                         """)
-        public RuntimeInvestigationResponse investigateRuntime(
+        public String investigateRuntime(
                         @McpToolParam(description = "Application issue description") String issueDescription,
                         @McpToolParam(description = "Kubernetes namespace") String namespace) throws Exception {
 
@@ -67,12 +65,15 @@ public class RuntimeAgentTools {
                                         .filter(tool -> {
                                                 String toolName = tool.getToolDefinition().name().toLowerCase();
                                                 return toolPrefixes.stream().anyMatch(toolName::startsWith);
-                                        }).toArray(ToolCallback[]::new);
+                                        })
+                                        .filter(tool-> !tool.getToolDefinition().name().toLowerCase().equals("pod_exec"))
+                                        .toArray(ToolCallback[]::new);
 
                         log.debug("Runtime Agent discovered {} Kubernetes tools", kubernetesTools.length);
 
                         Arrays.stream(kubernetesTools)
                                         .forEach(tool -> log.debug("Runtime Agent Tool: {}",
+
                                                         tool.getToolDefinition().name()));
 
                         String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) + "\n"
@@ -107,16 +108,16 @@ public class RuntimeAgentTools {
                                         .call()
                                         .content();
 
-                        RuntimeInvestigationResponse response = converter.convert(result);
+                        // RuntimeInvestigationResponse response = converter.convert(result);
 
-                        if (response != null) {
-                                response.setNamespace(namespace);
-                        }
+                        // if (response != null) {
+                        //         response.setNamespace(namespace);
+                        // }
 
                         log.debug("MCP Tool: investigateRuntime result: {}",
-                                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
+                                      result);
 
-                        return response;
+                        return result;
 
                 } catch (Exception e) {
 

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcltech.orchestrator_agent.response.LogInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ public class LogsAgentTools {
 
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
-        private final ObjectMapper objectMapper;
+
         @Value("${agent.logs.tool-prefix:opensearch_}")
         private String toolPrefix;
 
@@ -36,7 +35,7 @@ public class LogsAgentTools {
         private Resource appContext;
 
         @McpTool(name = "investigate_logs", description = "Investigate application logs for issues")
-        public LogInvestigationResponse investigateLogs(
+        public String investigateLogs(
                         @McpToolParam(description = "Issue") String issueDescription)
                         throws Exception {
 
@@ -69,10 +68,10 @@ public class LogsAgentTools {
                                         .call()
                                         .content();
 
-                        LogInvestigationResponse response = converter.convert(result);
+                        // LogInvestigationResponse response = converter.convert(result);
                         log.debug("MCP Tool: investigateLogs result: {}",
-                                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
-                        return response;
+                                        result);
+                        return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: investigateLogs failed for {}: {}", issueDescription, e.getMessage(), e);
                         throw e;

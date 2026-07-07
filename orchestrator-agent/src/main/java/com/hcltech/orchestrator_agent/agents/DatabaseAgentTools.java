@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcltech.orchestrator_agent.response.DatabaseInvestigationResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DatabaseAgentTools {
 
-        private final ObjectMapper objectMapper;
+    
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
 
@@ -53,7 +52,7 @@ public class DatabaseAgentTools {
 
                         Return investigation findings.
                         """)
-        public DatabaseInvestigationResponse investigateDatabase(
+        public String investigateDatabase(
                         @McpToolParam(description = "Application issue description") String issueDescription)
                         throws Exception {
 
@@ -84,10 +83,10 @@ public class DatabaseAgentTools {
                                         .call()
                                         .content();
 
-                        DatabaseInvestigationResponse response = converter.convert(result);
+                        // DatabaseInvestigationResponse response = converter.convert(result);
                         log.debug("MCP Tool: investigateDatabase result: {}",
-                                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response));
-                        return response;
+                                        result);
+                        return result;
                 } catch (Exception e) {
                         log.error("MCP Tool: investigateDatabase failed for {}: {}", issueDescription, e.getMessage(),
                                         e);
