@@ -10,7 +10,38 @@ sudo mv kubectl /usr/local/bin/
 oc version --client
 kubectl version --client
 
-oc port-forward svc/mysql 3306:3306 -n kallepelli-rupesh-dev 
-oc port-forward svc/postgres 5432:5432 -n kallepelli-rupesh-dev
+oc port-forward svc/mysql 3306:3306 -n kallepelli-rupesh-dev > mysql.log 2>&1 &
+oc port-forward svc/postgres 5432:5432 -n kallepelli-rupesh-dev > postgres.log 2>&1 &
+oc port-forward svc/log-search-mcp-server 8081:8080 -n kallepelli-rupesh-dev > log-search.log 2>&1 &
+oc port-forward svc/metrics-mcp-server 8082:8080 -n kallepelli-rupesh-dev > metrics-mcp-server.log 2>&1 &
+oc port-forward svc/traces-mcp-server 8083:5432 -n kallepelli-rupesh-dev > traces-mcp-server.log 2>&1 &
+
+
+oc port-forward svc/postgres 5432:5432 -n kallepelli-rupesh-dev > postgres.log 2>&1 &
 
 oc get rs --no-headers | awk '$2==0 {print $1}' | xargs -r oc delete rs
+
+
+
+oc project kallepelli-rupesh-dev
+
+oc get deployments -o jsonpath='{range .items[?(@.spec.replicas==0)]}{.metadata.name}{"\n"}{end}' \
+| xargs -I{} oc scale deployment {} --replicas=1
+
+
+
+oc start-build <service_name> --from-file=<jar_name> --follow
+
+mvn clean install -DskipTests
+
+cd ./target/ 
+
+oc start-build database-query-mcp-server --from-file=app.jar --follow
+
+oc start-build log-search-mcp-server --from-file=app.jar --follow
+
+oc start-build metrics-mcp-server --from-file=app.jar --follow
+
+oc start-build traces-mcp-server --from-file=app.jar --follow
+
+gcloud auth application-default login

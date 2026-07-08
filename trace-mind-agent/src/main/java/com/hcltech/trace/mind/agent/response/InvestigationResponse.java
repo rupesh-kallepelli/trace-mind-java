@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InvestigationResponse {
 
-    private UUID id;
+    private String id;
 
     private String serviceName;
 

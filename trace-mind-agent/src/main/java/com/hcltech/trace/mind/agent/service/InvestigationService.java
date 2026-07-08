@@ -10,24 +10,32 @@ import com.hcltech.trace.mind.agent.response.InvestigationSummaryResponse;
 
 public interface InvestigationService {
 
-    InvestigationResponse create(
-            CreateInvestigationRequest request);
+        InvestigationResponse create(
+                        CreateInvestigationRequest request);
 
-    InvestigationResponse getById(UUID id);
+        InvestigationResponse getById(String id);
 
-    Page<InvestigationSummaryResponse> getAll(
-            int page,
-            int size);
+        Page<InvestigationSummaryResponse> getAll(
+                        int page,
+                        int size);
 
-    void updateResult(
-            UUID id,
-            String rootCause,
-            Double confidenceScore,
-            String reportMarkdown);
+        void updateResult(
+                        String id,
+                        String rootCause,
+                        Double confidenceScore,
+                        String reportMarkdown);
 
-    void markRunning(UUID id);
+        void updateResult(
+                        String id,
+                        String serviceName,
+                        String issueDescription,
+                        String rootCause,
+                        Double confidenceScore,
+                        String reportMarkdown);
 
-    void markCompleted(UUID id);
+        void markRunning(String id);
 
-    void markFailed(UUID id);
+        void markCompleted(String id);
+
+        void markFailed(String id);
 }

@@ -19,7 +19,7 @@ public class OpenSearchServiceImpl implements OpenSearchService {
 
     private final RestHighLevelClient client;
 
-    @Value("${opensearch.index}")
+    @Value("${search.opensearch.index}")
     private String indexName;
 
     @Override

@@ -32,8 +32,7 @@ public class InvestigationEvidenceServiceImpl
     }
 
     @Override
-    public List<InvestigationEvidence>
-    getByInvestigation(UUID investigationId) {
+    public List<InvestigationEvidence> getByInvestigation(String investigationId) {
         log.debug("Retrieving all evidence for investigation: {}", investigationId);
         return repository.findByInvestigationId(
                 investigationId);

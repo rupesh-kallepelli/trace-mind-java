@@ -2,6 +2,7 @@ package com.hcltech.orchestrator_agent.agents;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import com.hcltech.orchestrator_agent.request.EventType;
+import com.hcltech.orchestrator_agent.service.TraceMindEventClient;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DatabaseAgentTools {
 
-    
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
+        private final TraceMindEventClient eventClient;
 
         @Value("${agent.database.tool-prefix:database_}")
         private String toolPrefix;
@@ -37,7 +41,11 @@ public class DatabaseAgentTools {
         private Resource appContext;
 
         @McpTool(name = "investigate_database", description = """
-                        Analyze database related evidence.
+                        Analyze database related evidence for a given investigation.
+
+                        Mandatory Inputs:
+                        - investigationId: unique investigation identifier used for event correlation.
+                        - issueDescription: issue being investigated.
 
                         Identify:
                         - affected tables
@@ -50,13 +58,22 @@ public class DatabaseAgentTools {
                         Return investigation findings.
                         """)
         public String investigateDatabase(
+                        @McpToolParam(description = "investigationId") String investigationId,
                         @McpToolParam(description = "Application issue description") String issueDescription)
                         throws Exception {
+                log.info("""
+                                Database Agent Input
 
+                                investigationId={}
+                                issueDescription={}
+                                """,
+                                investigationId,
+                                issueDescription);
                 log.info("MCP Tool: investigateDatabase called for: {}", issueDescription);
                 try {
-                        // BeanOutputConverter<DatabaseInvestigationResponse> converter = new BeanOutputConverter<>(
-                        //                 DatabaseInvestigationResponse.class);
+                        // BeanOutputConverter<DatabaseInvestigationResponse> converter = new
+                        // BeanOutputConverter<>(
+                        // DatabaseInvestigationResponse.class);
 
                         ToolCallback[] databaseTools = Arrays.stream(toolCallbackProvider.getToolCallbacks())
                                         .filter(tool -> {
@@ -72,21 +89,38 @@ public class DatabaseAgentTools {
                         String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) +
                                         "\n" + databaseSchema.getContentAsString(StandardCharsets.UTF_8) +
                                         "\n" + databaseAgentResource.getContentAsString(StandardCharsets.UTF_8);
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_STARTED,
+                                        "DB_AGENT",
+                                        "Searching DB",
+                                        null);
 
                         String result = chatClient.prompt()
-                                        .system(prompt 
-                                                // + "\n\n" + converter.getFormat()
+                                        .system(prompt
+                                        // + "\n\n" + converter.getFormat()
                                         )
                                         .user("Investigate database related evidence for issue: " + issueDescription)
                                         .toolCallbacks(databaseTools)
                                         .call()
                                         .content();
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_COMPLETED,
+                                        "DB_AGENT",
+                                        "DB analysis completed",
+                                        result);
                         // DatabaseInvestigationResponse response = converter.convert(result);
                         log.debug("MCP Tool: investigateDatabase result: {}",
                                         result);
                         return result;
                 } catch (Exception e) {
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_FAILED,
+                                        "DB_AGENT",
+                                        "DB analysis completed",
+                                        e.getMessage());
                         log.error("MCP Tool: investigateDatabase failed for {}: {}", issueDescription, e.getMessage(),
                                         e);
                         throw e;

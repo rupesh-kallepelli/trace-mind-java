@@ -1,0 +1,108 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: jdk17-slim
+spec:
+  tags:
+    - name: latest
+      annotations:
+        description: "OpenJDK 17 slim base image from Docker Hub"
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/ubi8/openjdk-17:1.17-1
+      importPolicy:
+        scheduled: true
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: database-query-mcp-server
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: log-search-mcp-server
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: metrics-mcp-server
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: traces-mcp-server
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: database-query-mcp-server
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jdk17-slim:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: database-query-mcp-server:latest
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: log-search-mcp-server
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jdk17-slim:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: log-search-mcp-server:latest
+---
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: metrics-mcp-server
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jdk17-slim:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: metrics-mcp-server:latest
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: traces-mcp-server
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jdk17-slim:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: traces-mcp-server:latest
+---

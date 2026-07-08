@@ -8,6 +8,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.hcltech.trace.mind.agent.entities.EventType;
 import com.hcltech.trace.mind.agent.entities.Incident;
 import com.hcltech.trace.mind.agent.entities.InvestigationEvidence;
 import com.hcltech.trace.mind.agent.request.CreateInvestigationRequest;
@@ -25,7 +26,7 @@ public class AiInvestigationServiceImpl
 
         private final ChatClient chatClient;
         private final ApplicationInvestigationAgent applicationInvestigationAgent;
-
+        private final InvestigationEventService eventService;
         private final InvestigationService investigationService;
         private final InvestigationEvidenceService evidenceService;
         private final IncidentService incidentService;
@@ -52,8 +53,7 @@ public class AiInvestigationServiceImpl
                         """;
 
         @Override
-        public String investigate(
-                        String issue) throws Exception {
+        public String investigate(String issue) throws Exception {
                 log.info("Starting AI investigation for issue: '{}' in namespace: {}", issue, namespace);
                 InvestigationResponse investigation = investigationService.create(
                                 CreateInvestigationRequest.builder()
@@ -62,18 +62,24 @@ public class AiInvestigationServiceImpl
                                                 .namespace(namespace)
                                                 .build());
 
-                UUID investigationId = investigation.getId();
+                String investigationId = investigation.getId().toString();
                 log.debug("Created initial investigation record with ID: {}", investigationId);
 
                 try {
-                        investigationService.markRunning(
-                                        investigationId);
+                        investigationService.markRunning(investigationId);
                         log.debug("Sending prompt to ChatClient for investigation: {}", investigationId);
-                        
+                        eventService.publish(
+                                        investigationId,
+                                        EventType.INVESTIGATION_STARTED,
+                                        "ORCHESTRATOR",
+                                        "Investigation started",
+                                        null);
                         String report = chatClient.prompt()
                                         .system(SYSTEM_PROMPT)
                                         .user("""
                                                         Analyze the following production issue.
+
+                                                        investigationId: %s
 
                                                         Issue:
                                                         %s
@@ -81,13 +87,18 @@ public class AiInvestigationServiceImpl
                                                         Namespace:
                                                         %s
                                                         """
-                                                        .formatted(issue,
-                                                                        namespace))
+                                                        .formatted(investigationId, issue, namespace))
                                         .tools(applicationInvestigationAgent)
                                         .call()
                                         .content();
-
-                        log.debug("AI analysis completed. Report size: {} characters", report != null ? report.length() : 0);
+                        eventService.publish(
+                                        investigationId,
+                                        EventType.INVESTIGATION_STARTED,
+                                        "ORCHESTRATOR",
+                                        "Investigation started",
+                                        "{}");
+                        log.debug("AI analysis completed. Report size: {} characters",
+                                        report != null ? report.length() : 0);
 
                         evidenceService.save(
                                         InvestigationEvidence.builder()
@@ -129,7 +140,8 @@ public class AiInvestigationServiceImpl
                                         .build();
 
                         incidentService.create(incident);
-                        log.debug("Opened new incident {} for investigation {}", incident.getIncidentNumber(), investigationId);
+                        log.debug("Opened new incident {} for investigation {}", incident.getIncidentNumber(),
+                                        investigationId);
 
                         log.info(
                                         "Investigation completed. InvestigationId={}",
@@ -142,11 +154,11 @@ public class AiInvestigationServiceImpl
                         investigationService.markFailed(
                                         investigationId);
 
-                        log.error("AI Investigation failed for investigationId: {}. Issue: {}. Error: {}", 
-                                investigationId, 
-                                issue, 
-                                ex.getMessage(), 
-                                ex);
+                        log.error("AI Investigation failed for investigationId: {}. Issue: {}. Error: {}",
+                                        investigationId,
+                                        issue,
+                                        ex.getMessage(),
+                                        ex);
 
                         throw ex;
                 }

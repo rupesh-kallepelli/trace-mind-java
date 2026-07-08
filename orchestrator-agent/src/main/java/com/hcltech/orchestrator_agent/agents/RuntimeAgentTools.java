@@ -3,6 +3,7 @@ package com.hcltech.orchestrator_agent.agents;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
@@ -12,6 +13,9 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+
+import com.hcltech.orchestrator_agent.request.EventType;
+import com.hcltech.orchestrator_agent.service.TraceMindEventClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +27,7 @@ public class RuntimeAgentTools {
 
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
-
+        private final TraceMindEventClient eventClient;
         @Value("${agent.runtime.tool-prefixes:pods_,deployment,deployments,events,node,nodes,service,configmap,ingress}")
         private Set<String> toolPrefixes;
 
@@ -33,7 +37,12 @@ public class RuntimeAgentTools {
         private Resource appContext;
 
         @McpTool(name = "investigate_runtime", description = """
-                        Investigate Kubernetes runtime health.
+                        Investigate Kubernetes runtime health for a specific investigation.
+
+                        Mandatory Inputs:
+                        - investigationId: Unique investigation identifier used for event correlation.
+                        - issueDescription: Description of the issue being investigated.
+                        - namespace: Kubernetes namespace containing the affected application.
 
                         Analyze:
                         - deployments
@@ -45,14 +54,39 @@ public class RuntimeAgentTools {
                         - scheduling failures
                         - namespace health
 
-                        Return investigation findings.
+                        The investigationId must be preserved and used when publishing
+                        investigation events.
+
+                        Return investigation findings and supporting evidence.
                         """)
         public String investigateRuntime(
-                        @McpToolParam(description = "Application issue description") String issueDescription,
-                        @McpToolParam(description = "Kubernetes namespace") String namespace) throws Exception {
+
+                        @McpToolParam(description = """
+                                        Unique investigation identifier received from the orchestrator.
+                                        Must be propagated unchanged for event tracking and streaming.
+                                        """) String investigationId,
+
+                        @McpToolParam(description = """
+                                        Description of the application issue being investigated.
+                                        """) String issueDescription,
+
+                        @McpToolParam(description = """
+                                        Kubernetes namespace containing the affected application.
+                                        """) String namespace)
+
+                        throws Exception {
 
                 log.info("MCP Tool: investigateRuntime called for issue [{}] in namespace [{}]", namespace);
+                log.info("""
+                                Runtime Agent Input
 
+                                investigationId={}
+                                issueDescription={}
+                                namespace={}
+                                """,
+                                investigationId,
+                                issueDescription,
+                                namespace);
                 try {
 
                         // BeanOutputConverter<RuntimeInvestigationResponse> converter = new
@@ -76,7 +110,12 @@ public class RuntimeAgentTools {
 
                         String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) + "\n"
                                         + runtimeAgentResource.getContentAsString(StandardCharsets.UTF_8);
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_STARTED,
+                                        "RUNTIME_AGENT",
+                                        "Runtime analysis started",
+                                        null);
                         String result = chatClient.prompt()
                                         .system(prompt
                                         // + "\n\n" + converter.getFormat()
@@ -113,14 +152,24 @@ public class RuntimeAgentTools {
                         // if (response != null) {
                         // response.setNamespace(namespace);
                         // }
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_COMPLETED,
+                                        "RUNTIME_AGENT",
+                                        "Runtime analysis complete",
+                                        result);
                         log.debug("MCP Tool: investigateRuntime result: {}",
                                         result);
 
                         return result;
 
                 } catch (Exception e) {
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_FAILED,
+                                        "RUNTIME_AGENT",
+                                        "Runtime analysis failed",
+                                        e.getMessage());
                         log.error("MCP Tool: investigateRuntime failed for issue [{}], namespace [{}]: {}",
                                         issueDescription, namespace, e.getMessage(), e);
 

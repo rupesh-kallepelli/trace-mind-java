@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @SpringBootApplication
 public class TraceMindAgentApplication {
@@ -17,7 +18,13 @@ public class TraceMindAgentApplication {
 
 	@Bean
 	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		mapper.registerModule(new JavaTimeModule());
+
+		return mapper;
+
 	}
 
 	@Bean

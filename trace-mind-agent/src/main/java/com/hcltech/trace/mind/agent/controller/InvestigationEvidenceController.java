@@ -43,7 +43,7 @@ public class InvestigationEvidenceController {
 
     @GetMapping("/{investigationId}")
     public ResponseEntity<List<InvestigationEvidence>> get(
-            @PathVariable UUID investigationId) {
+            @PathVariable String investigationId) {
         log.info("REST request to get evidence for investigation: {}", investigationId);
         try {
             List<InvestigationEvidence> results = service.getByInvestigation(investigationId);

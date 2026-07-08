@@ -14,7 +14,7 @@ import com.hcltech.trace.mind.agent.entities.Investigation;
 
 @Repository
 public interface InvestigationRepository
-        extends JpaRepository<Investigation, UUID> {
+        extends JpaRepository<Investigation, String> {
 
     List<Investigation> findByServiceName(String serviceName);
 

@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 
-    @Value("${opensearch.hostname}")
+    @Value("${search.opensearch.hostname}")
     private String hostname;
 
-    @Value("${opensearch.port}")
+    @Value("${search.opensearch.port}")
     private int port;
 
-    @Value("${opensearch.scheme}")
+    @Value("${search.opensearch.scheme}")
     private String scheme;
 
     @Bean

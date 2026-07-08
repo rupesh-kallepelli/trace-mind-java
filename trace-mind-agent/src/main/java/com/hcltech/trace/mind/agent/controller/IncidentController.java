@@ -1,6 +1,5 @@
 package com.hcltech.trace.mind.agent.controller;
 
-
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +36,7 @@ public class IncidentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<IncidentResponse> getById(
-            @PathVariable UUID id) {
+            @PathVariable String id) {
         log.info("REST request to get incident by ID: {}", id);
         try {
             IncidentResponse result = incidentService.getById(id);
@@ -51,7 +50,7 @@ public class IncidentController {
 
     @PutMapping("/{id}/resolve")
     public ResponseEntity<IncidentResponse> resolve(
-            @PathVariable UUID id) {
+            @PathVariable String id) {
         log.info("REST request to resolve incident: {}", id);
         try {
             IncidentResponse result = incidentService.resolve(id);
@@ -65,7 +64,7 @@ public class IncidentController {
 
     @PutMapping("/{id}/assign/{assignee}")
     public ResponseEntity<IncidentResponse> assign(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @PathVariable String assignee) {
         log.info("REST request to assign incident: {} to user: {}", id, assignee);
         try {

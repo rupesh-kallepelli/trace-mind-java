@@ -24,141 +24,161 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class InvestigationServiceImpl implements InvestigationService {
 
-    private final InvestigationRepository investigationRepository;
+        private final InvestigationRepository investigationRepository;
 
-    @Override
-    public InvestigationResponse create(CreateInvestigationRequest request) {
-        log.info("Creating new investigation for service: {}", request.getServiceName());
+        @Override
+        public InvestigationResponse create(CreateInvestigationRequest request) {
+                log.info("Creating new investigation for service: {}", request.getServiceName());
 
-        Investigation investigation = Investigation.builder()
-                .serviceName(request.getServiceName())
-                .namespace(request.getNamespace())
-                .issueDescription(request.getIssueDescription())
-                .status("CREATED")
-                .startedAt(LocalDateTime.now())
-                .build();
+                Investigation investigation = Investigation.builder()
+                                .serviceName(request.getServiceName())
+                                .namespace(request.getNamespace())
+                                .issueDescription(request.getIssueDescription())
+                                .status("CREATED")
+                                .startedAt(LocalDateTime.now())
+                                .build();
 
-        Investigation saved =
+                Investigation saved = investigationRepository.save(investigation);
+
+                log.debug("Saved investigation with ID: {}", saved.getId());
+                return mapToResponse(saved);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public InvestigationResponse getById(String id) {
+                log.debug("Retrieving investigation details for ID: {}", id);
+                Investigation investigation = investigationRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Investigation not found: " + id));
+
+                return mapToResponse(investigation);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Page<InvestigationSummaryResponse> getAll(
+                        int page,
+                        int size) {
+                log.debug("Fetching investigations page: {}, size: {}", page, size);
+                return investigationRepository
+                                .findAll(PageRequest.of(page, size))
+                                .map(this::mapToSummaryResponse);
+        }
+
+        @Override
+        public void updateResult(
+                        String id,
+                        String rootCause,
+                        Double confidenceScore,
+                        String reportMarkdown) {
+                log.info("Updating result for investigation: {}", id);
+                Investigation investigation = investigationRepository.findById(id)
+                                .orElseThrow(() -> {
+                                        log.error("Update failed. Investigation not found: {}", id);
+                                        return new EntityNotFoundException(
+                                                        "Investigation not found: " + id);
+                                });
+
+                investigation.setRootCause(rootCause);
+                investigation.setConfidenceScore(confidenceScore);
+                investigation.setReportMarkdown(reportMarkdown);
+
                 investigationRepository.save(investigation);
+        }
 
-        log.debug("Saved investigation with ID: {}", saved.getId());
-        return mapToResponse(saved);
-    }
+        @Override
+        public void updateResult(
+                        String id,
+                        String serviceName,
+                        String issueDescription,
+                        String rootCause,
+                        Double confidenceScore,
+                        String reportMarkdown) {
 
-    @Override
-    @Transactional(readOnly = true)
-    public InvestigationResponse getById(UUID id) {
-        log.debug("Retrieving investigation details for ID: {}", id);
-        Investigation investigation =
-                investigationRepository.findById(id)
-                        .orElseThrow(() ->
-                                new EntityNotFoundException(
-                                        "Investigation not found: " + id));
+                log.info("Updating investigation result for {}", id);
 
-        return mapToResponse(investigation);
-    }
+                Investigation investigation = investigationRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Investigation not found: " + id));
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<InvestigationSummaryResponse> getAll(
-            int page,
-            int size) {
-        log.debug("Fetching investigations page: {}, size: {}", page, size);
-        return investigationRepository
-                .findAll(PageRequest.of(page, size))
-                .map(this::mapToSummaryResponse);
-    }
+                if (serviceName != null && !serviceName.isBlank()) {
+                        investigation.setServiceName(serviceName);
+                }
 
-    @Override
-    public void updateResult(
-            UUID id,
-            String rootCause,
-            Double confidenceScore,
-            String reportMarkdown) {
-        log.info("Updating result for investigation: {}", id);
-        Investigation investigation =
-                investigationRepository.findById(id)
-                        .orElseThrow(() -> {
-                            log.error("Update failed. Investigation not found: {}", id);
-                            return new EntityNotFoundException(
-                                    "Investigation not found: " + id);
-                        });
+                if (issueDescription != null && !issueDescription.isBlank()) {
+                        investigation.setIssueDescription(issueDescription);
+                }
 
-        investigation.setRootCause(rootCause);
-        investigation.setConfidenceScore(confidenceScore);
-        investigation.setReportMarkdown(reportMarkdown);
+                investigation.setRootCause(rootCause);
+                investigation.setConfidenceScore(confidenceScore);
+                investigation.setReportMarkdown(reportMarkdown);
 
-        investigationRepository.save(investigation);
-    }
+                investigationRepository.save(investigation);
+        }
 
-    @Override
-    public void markRunning(UUID id) {
-        log.debug("Marking investigation as RUNNING: {}", id);
-        Investigation investigation =
-                investigationRepository.findById(id)
-                        .orElseThrow(() ->
-                                new EntityNotFoundException(
-                                        "Investigation not found: " + id));
+        @Override
+        public void markRunning(String id) {
+                log.debug("Marking investigation as RUNNING: {}", id);
+                Investigation investigation = investigationRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Investigation not found: " + id));
 
-        investigation.setStatus("RUNNING");
-        investigationRepository.save(investigation);
-    }
+                investigation.setStatus("RUNNING");
+                investigationRepository.save(investigation);
+        }
 
-    @Override
-    public void markCompleted(UUID id) {
-        log.info("Marking investigation as COMPLETED: {}", id);
-        Investigation investigation =
-                investigationRepository.findById(id)
-                        .orElseThrow(() ->
-                                new EntityNotFoundException(
-                                        "Investigation not found: " + id));
+        @Override
+        public void markCompleted(String id) {
+                log.info("Marking investigation as COMPLETED: {}", id);
+                Investigation investigation = investigationRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Investigation not found: " + id));
 
-        investigation.setStatus("COMPLETED");
-        investigation.setCompletedAt(LocalDateTime.now());
-        investigationRepository.save(investigation);
-    }
+                investigation.setStatus("COMPLETED");
+                investigation.setCompletedAt(LocalDateTime.now());
+                investigationRepository.save(investigation);
+        }
 
-    @Override
-    public void markFailed(UUID id) {
-        log.error("Marking investigation as FAILED: {}", id);
-        Investigation investigation =
-                investigationRepository.findById(id)
-                        .orElseThrow(() ->
-                                new EntityNotFoundException(
-                                        "Investigation not found: " + id));
+        @Override
+        public void markFailed(String id) {
+                log.error("Marking investigation as FAILED: {}", id);
+                Investigation investigation = investigationRepository.findById(id)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Investigation not found: " + id));
 
-        investigation.setStatus("FAILED");
-        investigation.setCompletedAt(LocalDateTime.now());
-        investigationRepository.save(investigation);
-    }
+                investigation.setStatus("FAILED");
+                investigation.setCompletedAt(LocalDateTime.now());
+                investigationRepository.save(investigation);
+        }
 
-    private InvestigationResponse mapToResponse(
-            Investigation investigation) {
+        private InvestigationResponse mapToResponse(
+                        Investigation investigation) {
 
-        return InvestigationResponse.builder()
-                .id(investigation.getId())
-                .serviceName(investigation.getServiceName())
-                .namespace(investigation.getNamespace())
-                .issueDescription(investigation.getIssueDescription())
-                .status(investigation.getStatus())
-                .rootCause(investigation.getRootCause())
-                .confidenceScore(investigation.getConfidenceScore())
-                .reportMarkdown(investigation.getReportMarkdown())
-                .startedAt(investigation.getStartedAt())
-                .completedAt(investigation.getCompletedAt())
-                .build();
-    }
+                return InvestigationResponse.builder()
+                                .id(investigation.getId())
+                                .serviceName(investigation.getServiceName())
+                                .namespace(investigation.getNamespace())
+                                .issueDescription(investigation.getIssueDescription())
+                                .status(investigation.getStatus())
+                                .rootCause(investigation.getRootCause())
+                                .confidenceScore(investigation.getConfidenceScore())
+                                .reportMarkdown(investigation.getReportMarkdown())
+                                .startedAt(investigation.getStartedAt())
+                                .completedAt(investigation.getCompletedAt())
+                                .build();
+        }
 
-    private InvestigationSummaryResponse mapToSummaryResponse(
-            Investigation investigation) {
+        private InvestigationSummaryResponse mapToSummaryResponse(
+                        Investigation investigation) {
 
-        return InvestigationSummaryResponse.builder()
-                .id(investigation.getId())
-                .serviceName(investigation.getServiceName())
-                .namespace(investigation.getNamespace())
-                .status(investigation.getStatus())
-                .confidenceScore(investigation.getConfidenceScore())
-                .startedAt(investigation.getStartedAt())
-                .build();
-    }
+                return InvestigationSummaryResponse.builder()
+                                .id(investigation.getId())
+                                .serviceName(investigation.getServiceName())
+                                .namespace(investigation.getNamespace())
+                                .status(investigation.getStatus())
+                                .confidenceScore(investigation.getConfidenceScore())
+                                .startedAt(investigation.getStartedAt())
+                                .build();
+        }
 }

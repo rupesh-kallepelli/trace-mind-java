@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class IncidentResponse {
 
-    private UUID id;
+    private String id;
 
     private String incidentNumber;
 
@@ -24,7 +24,7 @@ public class IncidentResponse {
 
     private String assignedTo;
 
-    private UUID investigationId;
+    private String investigationId;
 
     private LocalDateTime createdAt;
 

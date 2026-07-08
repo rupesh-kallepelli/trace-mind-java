@@ -1,0 +1,30 @@
+package com.hcltech.orchestrator_agent.request;
+
+public enum EventType {
+
+    INVESTIGATION_CREATED,
+
+    INVESTIGATION_STARTED,
+
+    INVESTIGATION_COMPLETED,
+
+    INVESTIGATION_FAILED,
+
+    AGENT_STARTED,
+
+    AGENT_COMPLETED,
+
+    AGENT_FAILED,
+
+    MCP_CALL_STARTED,
+
+    MCP_CALL_COMPLETED,
+
+    MCP_CALL_FAILED,
+
+    EVIDENCE_FOUND,
+
+    RCA_GENERATED,
+
+    RECOMMENDATION_GENERATED
+}

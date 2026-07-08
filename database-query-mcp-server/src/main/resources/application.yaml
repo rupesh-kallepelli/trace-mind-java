@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 spring:
   application:
     name: database-mcp-server
@@ -26,7 +26,7 @@ app:
 
     petclinic-db:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/petclinic
+      jdbc-url: jdbc:mysql://mysql:3306/petclinic
       username: petclinic
       password: petclinic
 

@@ -1,6 +1,6 @@
 server:
   port: 8084
-
+  address: 0.0.0.0
 spring:
   ai:
     vertex:
@@ -11,6 +11,14 @@ spring:
           chat:
             options:
               model: gemini-2.5-pro
+    mcp:
+      client:
+        request-timeout: 300s
+        streamable-http:
+          connections:
+            investigate_application_issue_mcp:
+              url: http://localhost:8083
+              endpoint: /mcp
   datasource:
     url: jdbc:postgresql://localhost:5432/petclinic
     username: petclinic
@@ -26,14 +34,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  mcp:
-    client:
-      request-timeout: 300s
-      streamable-http:
-        connections:
-          investigate_application_issue_mcp:
-            url: http://localhost:8083
-            endpoint: /mcp
 agent:
   main:
     tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime,investigate_metrics,investigate_traces
@@ -47,3 +47,4 @@ logging:
     org.springframework.ai.chat.client: DEBUG
     org.springframework.ai.vertexai.gemini: DEBUG
     org.springframework.web.client: DEBUG
+    '[com.hcltech.trace.mind.agent]': DEBUG

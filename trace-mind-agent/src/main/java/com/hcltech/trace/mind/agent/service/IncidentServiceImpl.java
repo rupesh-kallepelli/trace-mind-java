@@ -2,7 +2,7 @@ package com.hcltech.trace.mind.agent.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,7 @@ public class IncidentServiceImpl implements IncidentService {
 
         @Override
         @Transactional(readOnly = true)
-        public IncidentResponse getById(UUID id) {
+        public IncidentResponse getById(String id) {
                 log.debug("Service: Retrieving incident by ID: {}", id);
                 Incident incident = incidentRepository.findById(id)
                                 .orElseThrow(() -> {
@@ -46,7 +46,7 @@ public class IncidentServiceImpl implements IncidentService {
         }
 
         @Override
-        public IncidentResponse resolve(UUID id) {
+        public IncidentResponse resolve(String id) {
                 log.info("Service: Resolving incident ID: {}", id);
                 Incident incident = incidentRepository.findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException(
@@ -62,7 +62,7 @@ public class IncidentServiceImpl implements IncidentService {
 
         @Override
         public IncidentResponse assign(
-                        UUID id,
+                        String id,
                         String assignedTo) {
                 log.info("Service: Assigning incident ID: {} to user: {}", id, assignedTo);
                 Incident incident = incidentRepository.findById(id)

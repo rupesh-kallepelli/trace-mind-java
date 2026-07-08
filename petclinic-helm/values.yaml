@@ -1377,3 +1377,352 @@ applications:
           port: 5432
         initialDelaySeconds: 60
         periodSeconds: 20
+
+  - name: database-query-mcp-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/database-query-mcp-server
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
+  - name: log-search-mcp-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/log-search-mcp-server
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
+
+  - name: metrics-mcp-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/metrics-mcp-server
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
+  - name: traces-mcp-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/traces-mcp-server
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+        
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi

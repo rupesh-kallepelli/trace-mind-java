@@ -1,5 +1,5 @@
 server:
-  port: 8086
+  port: 8080
 spring:
   application:
     name: traces_mcp
@@ -18,4 +18,4 @@ management:
         include: "*"
 
 zipkin:
-  url: https://tracing-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com:443
+  url: http://tracing-server:9411

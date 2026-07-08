@@ -3,7 +3,9 @@ package com.hcltech.orchestrator_agent.agents;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 
+import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.converter.BeanOutputConverter;
@@ -13,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import com.hcltech.orchestrator_agent.request.EventType;
 import com.hcltech.orchestrator_agent.response.SourceCodeInvestigationResponse;
+import com.hcltech.orchestrator_agent.service.TraceMindEventClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +29,7 @@ public class SourceCodeAgentTools {
 
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
-
+        private final TraceMindEventClient eventClient;
         @Value("${agent.sourcecode.tools:search_repositories,search_code,search_issues,search_pull_requests,get_file_contents,get_commit,list_commits,list_branches}")
         private Set<String> githubToolNames;
 
@@ -35,21 +39,36 @@ public class SourceCodeAgentTools {
         private Resource appContext;
 
         // @McpTool(name = "investigate_source_code", description = """
-        // Investigate source code related evidence.
+        //                 Investigate source code related evidence for a specific investigation.
 
-        // Analyze:
-        // - repositories
-        // - classes
-        // - methods
-        // - commits
-        // - pull requests
-        // - recent code changes
+        //                 Mandatory Inputs:
+        //                 - investigationId: Unique investigation identifier used for event correlation.
+        //                 - issueDescription: Description of the issue being investigated.
 
-        // Return investigation findings.
-        // """)
+        //                 Analyze:
+        //                 - repositories
+        //                 - classes
+        //                 - methods
+        //                 - commits
+        //                 - pull requests
+        //                 - recent code changes
+
+        //                 The investigationId must be preserved and used when publishing
+        //                 investigation events.
+
+        //                 Return investigation findings and supporting evidence.
+        //                 """)
         public SourceCodeInvestigationResponse investigateSourceCode(
 
-                        @McpToolParam(description = "Application issue description") String issueDescription)
+                        @McpToolParam(description = """
+                                        Unique investigation identifier received from the orchestrator.
+                                        Must be propagated unchanged for event tracking and streaming.
+                                        """) String investigationId,
+
+                        @McpToolParam(description = """
+                                        Description of the application issue being investigated.
+                                        """) String issueDescription)
+
                         throws Exception {
                 log.info("MCP Tool: investigateSourceCode called for: {}", issueDescription);
                 try {
@@ -70,18 +89,34 @@ public class SourceCodeAgentTools {
 
                         String prompt = appContext.getContentAsString(StandardCharsets.UTF_8) +
                                         "\n" + sourceCodeAgentResource.getContentAsString(StandardCharsets.UTF_8);
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_STARTED,
+                                        "SOURCE_CODE_AGENT",
+                                        "Searching source code",
+                                        null);
                         String result = chatClient.prompt()
                                         .system(prompt + "\n\n" + converter.getFormat())
                                         .user("Investigate source code related evidence for issue: " + issueDescription)
                                         .toolCallbacks(githubTools)
                                         .call()
                                         .content();
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_COMPLETED,
+                                        "SOURCE_CODE_AGENT",
+                                        "Searching source complete",
+                                        result);
                         SourceCodeInvestigationResponse response = converter.convert(result);
                         log.debug("MCP Tool: investigateSourceCode result: {}", response);
                         return response;
                 } catch (Exception e) {
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_FAILED,
+                                        "SOURCE_CODE_AGENT",
+                                        "Searching source failed",
+                                        e.getMessage());
                         log.error("MCP Tool: investigateSourceCode failed for {}: {}", issueDescription, e.getMessage(),
                                         e);
                         throw e;

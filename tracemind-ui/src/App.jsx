@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Investigations from "./pages/Investigations";
 import InvestigationDetail from "./pages/InvestigationDetail";
 import Incidents from "./pages/Incidents";
+import NewInvestigation from "./pages/NewInvestigation";
 
 
 export default function App() {
@@ -36,6 +37,11 @@ export default function App() {
           <Route
             path="/incidents"
             element={<Incidents />}
+          />
+
+          <Route
+            path="/new-investigation"
+            element={<NewInvestigation />}
           />
 
           {/* <Route

@@ -1,8 +1,10 @@
 package com.hcltech.orchestrator_agent.agents;
 
 import java.nio.charset.StandardCharsets;
+import java.rmi.server.UID;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
@@ -11,6 +13,10 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.hcltech.orchestrator_agent.request.EventType;
+import com.hcltech.orchestrator_agent.service.TraceMindEventClient;
+
 import org.springframework.core.io.Resource;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +29,7 @@ public class TraceAgentTools {
 
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
-
+        private final TraceMindEventClient eventClient;
         @Value("${agent.traces.tool-prefixes:trace_}")
         private Set<String> toolPrefixes;
 
@@ -34,10 +40,14 @@ public class TraceAgentTools {
         private Resource appContext;
 
         @McpTool(name = "investigate_traces", description = """
-                        Investigate distributed traces.
+                        Investigate distributed traces for a specific investigation.
+
+                        Mandatory Inputs:
+                        - investigationId: Unique investigation identifier used for event correlation.
+                        - issueDescription: Description of the issue being investigated.
+                        - namespace: Kubernetes namespace containing the affected application.
 
                         Analyze:
-
                         - slow requests
                         - bottlenecks
                         - latency contributors
@@ -45,11 +55,27 @@ public class TraceAgentTools {
                         - dependency failures
                         - error propagation
 
-                        Return trace investigation findings.
+                        The investigationId must be preserved and used when publishing
+                        investigation events.
+
+                        Return trace investigation findings and supporting evidence.
                         """)
         public String investigateTraces(
-                        @McpToolParam(description = "Application issue description") String issueDescription,
-                        @McpToolParam(description = "Kubernetes namespace") String namespace) throws Exception {
+
+                        @McpToolParam(description = """
+                                        Unique investigation identifier received from the orchestrator.
+                                        Must be propagated unchanged for event tracking and streaming.
+                                        """) String investigationId,
+
+                        @McpToolParam(description = """
+                                        Description of the application issue being investigated.
+                                        """) String issueDescription,
+
+                        @McpToolParam(description = """
+                                        Kubernetes namespace containing the affected application.
+                                        """) String namespace)
+
+                        throws Exception {
 
                 log.info(
                                 "MCP Tool: investigateTraces called for issue [{}] in namespace [{}]",
@@ -82,7 +108,12 @@ public class TraceAgentTools {
                                         + "\n"
                                         + traceAgentResource.getContentAsString(
                                                         StandardCharsets.UTF_8);
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_STARTED,
+                                        "TRACE_AGENT",
+                                        "Trace analysis started",
+                                        null);
                         String result = chatClient.prompt()
                                         .system(prompt)
                                         .user("""
@@ -112,13 +143,24 @@ public class TraceAgentTools {
                                         .toolCallbacks(traceTools)
                                         .call()
                                         .content();
-
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_COMPLETED,
+                                        "TRACE_AGENT",
+                                        "Trace analysis complete",
+                                        result);
                         log.debug(
                                         "MCP Tool: investigateTraces result: {}",
                                         result);
 
                         return result;
                 } catch (Exception e) {
+                        eventClient.publishEvent(
+                                        investigationId,
+                                        EventType.AGENT_FAILED,
+                                        "TRACE_AGENT",
+                                        "Trace analysis failed",
+                                        e.getMessage());
                         log.error(
                                         "MCP Tool: investigateTraces failed for issue [{}], namespace [{}]: {}",
                                         issueDescription, namespace, e.getMessage(), e);
