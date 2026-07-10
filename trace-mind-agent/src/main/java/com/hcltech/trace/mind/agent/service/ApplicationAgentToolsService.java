@@ -6,13 +6,17 @@ import org.springaicommunity.mcp.annotation.McpToolListChanged;
 import org.springframework.stereotype.Service;
 
 import io.modelcontextprotocol.spec.McpSchema;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ApplicationAgentToolsService {
-
 
     @McpToolListChanged(clients = "server1")
     public void handleToolListChanged(List<McpSchema.Tool> updatedTools) {
-        System.out.println("Tool list updated: " + updatedTools.size() + " tools available");
+        log.info("Tool list updated: {} tools available", updatedTools.size());
+        if (log.isDebugEnabled()) {
+            updatedTools.forEach(tool -> log.debug("Available tool: {}", tool.name()));
+        }
     }
 }

@@ -1,67 +1,128 @@
+import { useEffect, useState } from "react";
+
 import {
-  useEffect,
-  useState
-} from "react";
+  Loader2,
+  Brain,
+  AlertTriangle,
+  Search
+} from "lucide-react";
 
 import {
   getDashboardOverview
 } from "../services/dashboardApi";
 
 import IncidentTrendChart
-from "../components/IncidentTrendChart";
+  from "../components/IncidentTrendChart";
 
 import SeverityChart
-from "../components/SeverityChart";
+  from "../components/SeverityChart";
 
 import AIInsights
-from "../components/AIInsights";
+  from "../components/AIInsights";
 
 export default function Dashboard() {
 
   const [data, setData] =
-      useState(null);
+    useState(null);
 
   useEffect(() => {
 
-      getDashboardOverview()
-          .then(setData);
+    getDashboardOverview()
+      .then(setData)
+      .catch(console.error);
 
   }, []);
 
   if (!data) {
-     return <div>Loading...</div>;
+
+    return (
+
+      <div
+        className="
+          flex
+          items-center
+          gap-3
+          p-8
+        "
+      >
+
+        <Loader2
+          className="
+            animate-spin
+            text-green-400
+          "
+        />
+
+        <span>
+          Loading dashboard...
+        </span>
+
+      </div>
+
+    );
+
   }
 
   return (
 
-    <div>
+    <div className="space-y-8">
+
+      <div>
+
+        <h1
+          className="
+            text-4xl
+            font-bold
+          "
+        >
+          Dashboard
+        </h1>
+
+        <p
+          className="
+            mt-2
+            app-muted
+          "
+        >
+          AI powered observability and root cause analytics
+        </p>
+
+      </div>
 
       <div
         className="
-        grid
-        grid-cols-3
-        gap-5
-      ">
+          grid
+          grid-cols-1
+          md:grid-cols-3
+          gap-5
+        "
+      >
 
         <Metric
-            title="Investigations"
-            value={
-               data.totalInvestigations
-            }
+          title="Investigations"
+          value={
+            data.totalInvestigations
+          }
+          icon={<Brain />}
+          color="text-cyan-400"
         />
 
         <Metric
-            title="Open Incidents"
-            value={
-               data.openIncidents
-            }
+          title="Open Incidents"
+          value={
+            data.openIncidents
+          }
+          icon={<Search />}
+          color="text-yellow-400"
         />
 
         <Metric
-            title="Critical"
-            value={
-               data.criticalIncidents
-            }
+          title="Critical"
+          value={
+            data.criticalIncidents
+          }
+          icon={<AlertTriangle />}
+          color="text-red-400"
         />
 
       </div>
@@ -69,73 +130,129 @@ export default function Dashboard() {
       <div
         className="
           grid
-          grid-cols-2
+          grid-cols-1
+          lg:grid-cols-2
           gap-5
-          mt-6
-        ">
+        "
+      >
 
-         <IncidentTrendChart
-             data={
-                 data.incidentTrend
-             }
-         />
+        <div
+          className="
+            card-surface
+            border
+            border-surface
+            rounded-2xl
+            p-5
+          "
+        >
 
-         <SeverityChart
-             data={
-                 data.severityDistribution
-             }
-         />
+          <IncidentTrendChart
+            data={
+              data.incidentTrend
+            }
+          />
+
+        </div>
+
+        <div
+          className="
+            card-surface
+            border
+            border-surface
+            rounded-2xl
+            p-5
+          "
+        >
+
+          <SeverityChart
+            data={
+              data.severityDistribution
+            }
+          />
+
+        </div>
 
       </div>
 
-      <div className="mt-6">
+      <div
+        className="
+          card-surface
+          border
+          border-surface
+          rounded-2xl
+          p-6
+        "
+      >
 
         <AIInsights
-            insights={
-                data.aiInsights
-            }
+          insights={
+            data.aiInsights
+          }
         />
 
       </div>
 
     </div>
+
   );
+
 }
 
 function Metric({
   title,
-  value
+  value,
+  icon,
+  color = "text-green-400"
 }) {
 
   return (
 
     <div
       className="
-      p-6
-      rounded-2xl
-      bg-gray-900
-    ">
+        card-surface
+        border
+        border-surface
+        rounded-2xl
+        p-6
+        shadow-sm
+      "
+    >
 
       <div
         className="
-        text-gray-400
-      ">
+          flex
+          justify-between
+          items-center
+        "
+      >
 
-        {title}
+        <div
+          className="
+            app-muted
+            text-sm
+          "
+        >
+          {title}
+        </div>
+
+        <div className={color}>
+          {icon}
+        </div>
 
       </div>
 
       <div
         className="
-        text-4xl
-        font-bold
-        mt-2
-      ">
-
+          text-4xl
+          font-bold
+          mt-3
+        "
+      >
         {value}
-
       </div>
 
     </div>
+
   );
+
 }

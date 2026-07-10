@@ -1,7 +1,13 @@
 package com.hcltech.trace.mind.agent.service;
 
+import com.hcltech.trace.mind.agent.response.InvestigationResponse;
+
 public interface AiInvestigationService {
 
-    String investigate(String issue) throws Exception;
+    void executeInvestigation(
+            String investigationId,
+            String issue);
+
+    InvestigationResponse createInvestigation(String issue);
 
 }

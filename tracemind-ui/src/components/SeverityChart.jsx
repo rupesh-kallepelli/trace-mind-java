@@ -18,20 +18,40 @@ export default function SeverityChart({
 }) {
 
   if (!data || data.length === 0) {
+
     return (
-      <div className="bg-gray-900 rounded-2xl p-6">
-        <h3 className="mb-4 font-semibold">
+
+      <div>
+
+        <h3
+          className="
+            mb-4
+            font-semibold
+          "
+        >
           Severity Distribution
         </h3>
-        <div>No data available</div>
+
+        <div className="app-muted">
+          No data available
+        </div>
+
       </div>
+
     );
+
   }
 
   return (
-    <div className="bg-gray-900 rounded-2xl p-6">
 
-      <h3 className="mb-4 font-semibold">
+    <div>
+
+      <h3
+        className="
+          mb-4
+          font-semibold
+        "
+      >
         Severity Distribution
       </h3>
 
@@ -39,22 +59,32 @@ export default function SeverityChart({
         width="100%"
         height={250}
       >
+
         <PieChart>
 
           <Pie
             data={data}
             dataKey="count"
             nameKey="severity"
+            outerRadius={90}
+            label
           >
 
-            {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={
-                  COLORS[index % COLORS.length]
-                }
-              />
-            ))}
+            {data.map(
+              (entry, index) => (
+
+                <Cell
+                  key={index}
+                  fill={
+                    COLORS[
+                    index %
+                    COLORS.length
+                    ]
+                  }
+                />
+
+              )
+            )}
 
           </Pie>
 
@@ -65,5 +95,7 @@ export default function SeverityChart({
       </ResponsiveContainer>
 
     </div>
+
   );
+
 }

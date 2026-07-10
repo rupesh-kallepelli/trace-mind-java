@@ -1,10 +1,14 @@
-import { useEffect, useState }
-from "react";
+import { useEffect, useState } from "react";
+
+import {
+  AlertTriangle,
+  ShieldAlert,
+  CheckCircle
+} from "lucide-react";
 
 import {
   getIncidents
-}
-from "../services/incidentApi";
+} from "../services/incidentApi";
 
 export default function Incidents() {
 
@@ -14,17 +18,108 @@ export default function Incidents() {
   useEffect(() => {
 
     getIncidents()
-      .then(setItems);
+      .then(setItems)
+      .catch(console.error);
 
   }, []);
 
+  const severityColor =
+    (severity) => {
+
+      switch (severity) {
+
+        case "CRITICAL":
+          return "text-red-500";
+
+        case "HIGH":
+          return "text-orange-500";
+
+        case "MEDIUM":
+          return "text-yellow-500";
+
+        default:
+          return "text-blue-500";
+
+      }
+
+    };
+
+  const statusColor =
+    (status) => {
+
+      switch (status) {
+
+        case "OPEN":
+          return `
+            bg-red-500/10
+            text-red-500
+          `;
+
+        case "IN_PROGRESS":
+          return `
+            bg-blue-500/10
+            text-blue-500
+          `;
+
+        case "RESOLVED":
+          return `
+            bg-green-500/10
+            text-green-500
+          `;
+
+        default:
+          return `
+            bg-slate-500/10
+            text-slate-500
+          `;
+
+      }
+
+    };
+
   return (
 
-    <div>
+    <div className="space-y-6">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Incidents
-      </h1>
+      <div>
+
+        <h1
+          className="
+            text-4xl
+            font-bold
+          "
+        >
+          Incidents
+        </h1>
+
+        <p
+          className="
+            mt-2
+            app-muted
+          "
+        >
+          Active and historical incidents
+        </p>
+
+      </div>
+
+      {items.length === 0 && (
+
+        <div
+          className="
+            card-surface
+            border
+            border-surface
+            rounded-2xl
+            p-8
+            text-center
+            app-muted
+          "
+        >
+          No incidents found
+        </div>
+
+      )}
 
       <div className="space-y-4">
 
@@ -32,20 +127,139 @@ export default function Incidents() {
 
           <div
             key={item.id}
-            className="bg-gray-900 rounded-xl p-5">
+            className="
+              card-surface
+              border
+              border-surface
+              rounded-2xl
+              p-6
+              hover:border-slate-400
+              transition-all
+            "
+          >
 
-            <div>
-              {item.incidentNumber}
+            <div
+              className="
+                flex
+                justify-between
+                items-start
+                gap-4
+              "
+            >
+
+              <div>
+
+                <div
+                  className="
+                    font-semibold
+                    text-lg
+                  "
+                >
+                  {
+                    item.incidentNumber ||
+                    item.id
+                  }
+                </div>
+
+                <div
+                  className="
+                    mt-2
+                    app-muted
+                  "
+                >
+                  {
+                    item.description ||
+                    "No description available"
+                  }
+                </div>
+
+              </div>
+
+              <span
+                className={`
+                  px-3
+                  py-1
+                  rounded-full
+                  text-sm
+                  font-medium
+                  ${statusColor(
+                  item.status
+                )}
+                `}
+              >
+                {item.status}
+              </span>
+
             </div>
 
-            <div>
-              Severity:
-              {item.severity}
-            </div>
+            <div
+              className="
+                mt-5
+                grid
+                md:grid-cols-3
+                gap-4
+              "
+            >
 
-            <div>
-              Status:
-              {item.status}
+              <div>
+
+                <div className="app-muted text-sm">
+                  Severity
+                </div>
+
+                <div
+                  className={`
+                    mt-1
+                    flex
+                    items-center
+                    gap-2
+                    ${severityColor(
+                    item.severity
+                  )}
+                  `}
+                >
+
+                  <ShieldAlert
+                    size={16}
+                  />
+
+                  {item.severity}
+
+                </div>
+
+              </div>
+
+              <div>
+
+                <div className="app-muted text-sm">
+                  Created
+                </div>
+
+                <div className="mt-1">
+                  {item.createdAt
+                    ? new Date(
+                      item.createdAt
+                    ).toLocaleString()
+                    : "N/A"}
+                </div>
+
+              </div>
+
+              <div>
+
+                <div className="app-muted text-sm">
+                  Investigation
+                </div>
+
+                <div className="mt-1 truncate">
+                  {
+                    item.investigationId ||
+                    "-"
+                  }
+                </div>
+
+              </div>
+
             </div>
 
           </div>
@@ -55,5 +269,7 @@ export default function Incidents() {
       </div>
 
     </div>
+
   );
+
 }

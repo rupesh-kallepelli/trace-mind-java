@@ -1,39 +1,91 @@
 import {
-  LayoutDashboard,
-  Search,
   AlertTriangle,
   Brain,
-  Activity,
-  BarChart3
+  LayoutDashboard,
+  Search
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
-
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 p-3 rounded-xl transition-all ${
-      isActive
-        ? "bg-green-500 text-black font-semibold"
-        : "text-gray-400 hover:bg-gray-800 hover:text-white"
-    }`;
+    `
+    flex
+    items-center
+    gap-3
+    p-3
+    rounded-xl
+    transition-all
+
+    ${isActive
+      ? `
+            bg-white
+            border
+            border-slate-300
+
+            text-slate-900
+
+            font-semibold
+          `
+      : `
+            text-slate-500
+
+            hover:bg-slate-100
+            hover:text-slate-900
+          `
+    }
+  `;
 
   return (
-    <div className="w-72 bg-black border-r border-gray-800 min-h-screen">
 
-      <div className="p-6 border-b border-gray-800">
+    <aside
+      className="
+        w-72
+        app-card
+        border-r
+        app-border
+        min-h-screen
+        flex
+        flex-col
+      "
+    >
 
-        <h1 className="text-3xl font-bold text-green-400">
+      <div
+        className="
+          p-6
+          border-b
+          app-border
+        "
+      >
+
+        <h1
+          className="
+              text-3xl
+              font-bold
+            "
+        >
           TraceMind
         </h1>
 
-        <p className="text-xs text-gray-500 mt-2">
+        <p
+          className="
+            text-xs
+            mt-2
+            app-muted
+          "
+        >
           AI Powered RCA Platform
         </p>
 
       </div>
 
-      <nav className="p-4 space-y-2">
+      <nav
+        className="
+          flex-1
+          p-4
+          space-y-2
+        "
+      >
 
         <NavLink
           to="/"
@@ -66,24 +118,29 @@ export default function Sidebar() {
           <AlertTriangle size={18} />
           Incidents
         </NavLink>
-
-        <NavLink
-          to="/services"
-          className={linkClass}
-        >
-          <Activity size={18} />
-          Services
-        </NavLink>
-
-        <NavLink
-          to="/analytics"
-          className={linkClass}
-        >
-          <BarChart3 size={18} />
-          Analytics
-        </NavLink>
-
       </nav>
-    </div>
+
+      <div
+        className="
+          p-4
+          border-t
+          app-border
+        "
+      >
+
+        <div
+          className="
+            text-xs
+            app-muted
+          "
+        >
+          TraceMind v1.0
+        </div>
+
+      </div>
+
+    </aside>
+
   );
+
 }

@@ -5,33 +5,33 @@ export const getInvestigations = async (
   size = 20
 ) => {
 
-  const response =
-    await api.get(
-      `/v1/investigations?page=${page}&size=${size}`
-    );
+  const response = await api.get(
+    `/v1/investigations?page=${page}&size=${size}`
+  );
 
   return response.data;
 };
 
-export const getInvestigationDetail =
-  async (id) => {
+export const getInvestigationDetail = async (
+  id
+) => {
 
-    const response =
-      await api.get(
-        `/v1/investigations/${id}`
-      );
+  const response = await api.get(
+    `/v1/investigations/${id}`
+  );
 
-    return response.data;
+  return response.data;
+
 };
-
 
 export const analyzeIssue = async (
   issue,
   namespace = "default"
 ) => {
 
-  const response = await api.get(
-    `/observai/analyze`,
+  const response = await api.post(
+    "/observai/analyze",
+    null,
     {
       params: {
         issue,
@@ -43,13 +43,15 @@ export const analyzeIssue = async (
   return response.data;
 };
 
-export const getInvestigationEvents =
-  async (id) => {
 
-    const response =
-      await api.get(
-        `/v1/investigations/${id}/events`
-      );
+export const getInvestigationEvents = async (
+  id
+) => {
 
-    return response.data;
-  };
+  const response = await api.get(
+    `/v1/investigations/${id}/events`
+  );
+
+  return response.data;
+
+};

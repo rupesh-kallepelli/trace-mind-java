@@ -1,15 +1,70 @@
 @import "tailwindcss";
 
-html,
-body,
-#root {
-  margin: 0;
-  width: 100%;
-  height: 100%;
+:root {
+
+  --bg-primary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-secondary: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+
+  --border-color: #e2e8f0;
+}
+
+html.dark {
+
+  --bg-primary: #0f172a;
+  --bg-card: #1e293b;
+  --bg-secondary: #334155;
+
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+
+  --border-color: #475569;
 }
 
 body {
-  background: #0a0a0a;
-  color: white;
-  font-family: Inter, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.app-bg {
+  background: var(--bg-primary);
+}
+
+.app-card {
+  background: var(--bg-card);
+}
+
+.app-secondary {
+  background: var(--bg-secondary);
+}
+
+.app-border {
+  border-color: var(--border-color);
+}
+
+.app-text {
+  color: var(--text-primary);
+}
+
+.app-muted {
+  color: var(--text-secondary);
+}
+
+.card-surface {
+  background: var(--bg-card);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.border-surface {
+  border-color: var(--border-color);
 }

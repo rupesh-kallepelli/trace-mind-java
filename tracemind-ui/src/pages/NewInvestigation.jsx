@@ -4,13 +4,13 @@ import remarkGfm from "remark-gfm";
 
 import {
   Brain,
-  AlertTriangle,
   Search,
   Loader2
 } from "lucide-react";
 
 import {
-  analyzeIssue
+  analyzeIssue,
+  getInvestigationDetail
 } from "../services/investigationApi";
 
 import InvestigationTimeline
@@ -31,7 +31,7 @@ export default function NewInvestigation() {
     useState([]);
 
   const [investigationId,
-          setInvestigationId] =
+    setInvestigationId] =
     useState(null);
 
   useEffect(() => {
@@ -40,6 +40,11 @@ export default function NewInvestigation() {
       return;
     }
 
+    console.log(
+      "Opening SSE for",
+      investigationId
+    );
+
     const eventSource =
       new EventSource(
         `${window.location.origin}/api/v1/investigations/${investigationId}/stream`
@@ -47,7 +52,7 @@ export default function NewInvestigation() {
 
     eventSource.addEventListener(
       "investigation-event",
-      (event) => {
+      async (event) => {
 
         const eventData =
           JSON.parse(event.data);
@@ -61,9 +66,7 @@ export default function NewInvestigation() {
 
           const exists =
             prev.some(
-              e =>
-                e.id &&
-                e.id === eventData.id
+              e => e.id === eventData.id
             );
 
           if (exists) {
@@ -77,19 +80,80 @@ export default function NewInvestigation() {
 
         });
 
+        if (
+
+          eventData.eventType ===
+          "INVESTIGATION_COMPLETED"
+
+          ||
+
+          eventData.eventType ===
+          "COMPLETED"
+
+        ) {
+
+          try {
+
+            const investigation =
+              await getInvestigationDetail(
+                investigationId
+              );
+
+            setResponse(
+              investigation.reportMarkdown ||
+              investigation.report ||
+              ""
+            );
+
+          } catch (error) {
+
+            console.error(
+              "Failed to load RCA",
+              error
+            );
+
+          } finally {
+
+            setLoading(false);
+
+          }
+
+        }
+
+        if (
+
+          eventData.eventType ===
+          "INVESTIGATION_FAILED"
+
+          ||
+
+          eventData.eventType ===
+          "FAILED"
+
+        ) {
+
+          setLoading(false);
+
+        }
+
       }
     );
 
-    eventSource.onerror = (error) => {
+    eventSource.onerror =
+      (error) => {
 
-      console.error(
-        "SSE ERROR",
-        error
-      );
+        console.error(
+          "SSE ERROR",
+          error
+        );
 
-    };
+      };
 
     return () => {
+
+      console.log(
+        "Closing SSE"
+      );
 
       eventSource.close();
 
@@ -112,46 +176,32 @@ export default function NewInvestigation() {
 
         setEvents([]);
 
+        setInvestigationId(null);
+
         const result =
           await analyzeIssue(issue);
 
-        if (
+        console.log(
+          "Investigation Started",
+          result
+        );
+
+        setInvestigationId(
           result.investigationId
-        ) {
-
-          setInvestigationId(
-            result.investigationId
-          );
-
-        }
-
-        if (result.report) {
-
-          setResponse(
-            result.report
-          );
-
-        } else if (
-          typeof result === "string"
-        ) {
-
-          setResponse(result);
-
-        }
+        );
 
       } catch (err) {
 
         console.error(err);
 
+        setLoading(false);
+
         alert(
           "Investigation failed"
         );
 
-      } finally {
-
-        setLoading(false);
-
       }
+
     };
 
   return (
@@ -161,7 +211,7 @@ export default function NewInvestigation() {
       <div className="flex items-center gap-3">
 
         <Brain
-          className="text-green-400"
+          className="text-slate-500"
           size={32}
         />
 
@@ -171,7 +221,7 @@ export default function NewInvestigation() {
             AI Investigation
           </h1>
 
-          <p className="text-gray-400">
+          <p className="app-muted">
             Agentic Root Cause Analysis Platform
           </p>
 
@@ -181,87 +231,152 @@ export default function NewInvestigation() {
 
       <div
         className="
-          bg-slate-900
+          card-surface
           border
-          border-slate-700
+          border-surface
           rounded-2xl
           p-6
         "
       >
 
-        <div className="text-sm text-gray-400 mb-4">
+        <div className="text-sm app-muted mb-4">
           Describe the production issue
         </div>
 
         <textarea
           value={issue}
           onChange={(e) =>
-            setIssue(e.target.value)
+            setIssue(
+              e.target.value
+            )
           }
-          placeholder="Customers are not listing..."
+          placeholder="Customers are not able to access the application after deployment..."
           className="
             w-full
             h-40
-            bg-slate-950
+            card-surface
             border
-            border-slate-700
+            border-surface
             rounded-xl
             p-4
-            text-white
+            app-text
             focus:outline-none
             focus:ring-2
-            focus:ring-green-500
+            focus:ring-slate-400
           "
         />
 
-        <button
-          onClick={
-            handleInvestigate
-          }
-          disabled={loading}
+        <div className="flex justify-end mt-6">
+
+          <button
+            onClick={
+              handleInvestigate
+            }
+            disabled={loading}
+            className="
+              bg-white
+              hover:bg-slate-100
+
+              dark:bg-slate-800
+              dark:hover:bg-slate-700
+
+              border
+              border-slate-300
+              dark:border-slate-700
+
+              text-slate-900
+              dark:text-white
+
+              disabled:opacity-50
+
+              px-8
+              py-3
+              rounded-xl
+
+              font-semibold
+
+              flex
+              items-center
+              gap-2
+
+              transition-all
+            "
+          >
+
+            {loading
+              ? (
+                <Loader2
+                  className="animate-spin"
+                  size={18}
+                />
+              )
+              : (
+                <Search size={18} />
+              )}
+
+            {loading
+              ? "Investigating..."
+              : "Investigate"}
+
+          </button>
+
+        </div>
+
+      </div>
+
+      {loading && (
+
+        <div
           className="
-            mt-6
-            bg-green-500
-            hover:bg-green-400
-            disabled:opacity-50
-            text-black
-            px-8
-            py-3
-            rounded-xl
-            font-semibold
-            flex
-            items-center
-            gap-2
+            card-surface
+            border
+            border-surface
+            rounded-2xl
+            p-5
           "
         >
 
-          {loading
-            ? (
-              <Loader2
-                className="animate-spin"
-                size={18}
-              />
-            )
-            : (
-              <Search size={18} />
-            )}
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+            "
+          >
 
-          {loading
-            ? "Investigating..."
-            : "Investigate"}
+            <Loader2
+              className="
+                animate-spin
+                text-slate-500
+              "
+            />
 
-        </button>
+            <div>
 
-      </div>
+              <div className="font-semibold">
+                AI Investigation Running
+              </div>
+
+              <div className="app-muted text-sm">
+                Agents are collecting evidence and generating root cause analysis
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
       {(loading ||
         events.length > 0) && (
 
-        <InvestigationTimeline
-          events={events}
-        />
+          <InvestigationTimeline
+            events={events}
+          />
 
-      )}
+        )}
 
       {response && (
 
@@ -269,12 +384,10 @@ export default function NewInvestigation() {
 
           <div
             className="
-              bg-gradient-to-r
-              from-red-950
-              via-red-900/30
-              to-transparent
               border
-              border-red-500
+              border-surface
+              bg-slate-100
+              dark:bg-slate-800/40
               rounded-2xl
               p-6
             "
@@ -282,9 +395,9 @@ export default function NewInvestigation() {
 
             <div className="flex items-center gap-4">
 
-              <AlertTriangle
-                className="text-red-400"
-                size={30}
+              <Brain
+                className="text-slate-500"
+                size={28}
               />
 
               <div>
@@ -293,9 +406,8 @@ export default function NewInvestigation() {
                   Root Cause Analysis Completed
                 </h2>
 
-                <p className="text-gray-300">
-                  Multi-agent investigation
-                  finished successfully
+                <p className="app-muted">
+                  Multi-agent investigation completed successfully
                 </p>
 
               </div>
@@ -306,9 +418,9 @@ export default function NewInvestigation() {
 
           <div
             className="
-              bg-slate-900
+              card-surface
               border
-              border-slate-700
+              border-surface
               rounded-2xl
               overflow-hidden
             "
@@ -318,7 +430,7 @@ export default function NewInvestigation() {
               className="
                 p-5
                 border-b
-                border-slate-700
+                border-surface
                 flex
                 items-center
                 gap-3
@@ -326,7 +438,7 @@ export default function NewInvestigation() {
             >
 
               <Brain
-                className="text-green-400"
+                className="text-slate-500"
                 size={24}
               />
 
@@ -336,7 +448,7 @@ export default function NewInvestigation() {
                   Investigation Report
                 </h2>
 
-                <p className="text-sm text-gray-400">
+                <p className="app-muted text-sm">
                   AI Generated RCA Report
                 </p>
 
@@ -349,12 +461,8 @@ export default function NewInvestigation() {
               <div
                 className="
                   prose
-                  prose-invert
                   max-w-none
-                  prose-headings:text-green-400
-                  prose-p:text-gray-300
-                  prose-li:text-gray-300
-                  prose-strong:text-white
+                  dark:prose-invert
                 "
               >
 

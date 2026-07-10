@@ -3,14 +3,21 @@ import {
 } from "lucide-react";
 
 export default function AIInsights({
-  insights
+  insights = []
 }) {
 
   return (
 
-    <div className="bg-gray-900 rounded-2xl p-6">
+    <div>
 
-      <div className="flex items-center gap-2 mb-5">
+      <div
+        className="
+          flex
+          items-center
+          gap-2
+          mb-5
+        "
+      >
 
         <Sparkles
           className="text-green-500"
@@ -22,24 +29,42 @@ export default function AIInsights({
 
       </div>
 
-      <div className="space-y-4">
+      {insights.length === 0 ? (
 
-        {
-          insights?.map(
+        <div className="app-muted">
+          No insights available
+        </div>
+
+      ) : (
+
+        <div className="space-y-4">
+
+          {insights.map(
             (insight, index) => (
 
-            <div
-              key={index}
-              className="text-gray-300">
+              <div
+                key={index}
+                className="
+                  border-l-4
+                  border-green-500
+                  pl-4
+                  app-text
+                "
+              >
 
-              • {insight}
+                {insight}
 
-            </div>
-          ))
-        }
+              </div>
 
-      </div>
+            )
+          )}
+
+        </div>
+
+      )}
 
     </div>
+
   );
+
 }

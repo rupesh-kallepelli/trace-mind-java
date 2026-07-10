@@ -47,4 +47,4 @@ logging:
     org.springframework.ai.chat.client: DEBUG
     org.springframework.ai.vertexai.gemini: DEBUG
     org.springframework.web.client: DEBUG
-    '[com.hcltech.trace.mind.agent]': DEBUG
+    "[com.hcltech.trace.mind.agent]": DEBUG

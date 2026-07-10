@@ -87,11 +87,6 @@ export default function InvestigationDetail() {
         const eventData =
           JSON.parse(event.data);
 
-        console.log(
-          "SSE EVENT",
-          eventData
-        );
-
         setEvents(prev => {
 
           const exists =
@@ -113,18 +108,15 @@ export default function InvestigationDetail() {
         });
 
         if (
-          eventData.eventType ===
-            "COMPLETED" ||
-          eventData.eventType ===
-            "FAILED"
+          eventData.eventType === "COMPLETED" ||
+          eventData.eventType === "FAILED" ||
+          eventData.eventType === "INVESTIGATION_COMPLETED"
         ) {
 
           try {
 
             const latest =
-              await getInvestigationDetail(
-                id
-              );
+              await getInvestigationDetail(id);
 
             setData(latest);
 
@@ -139,15 +131,6 @@ export default function InvestigationDetail() {
       }
     );
 
-    eventSource.onerror = (error) => {
-
-      console.error(
-        "SSE Connection Error",
-        error
-      );
-
-    };
-
     return () => {
 
       eventSource.close();
@@ -155,6 +138,36 @@ export default function InvestigationDetail() {
     };
 
   }, [id]);
+
+  const formatDate = (
+    value
+  ) => {
+
+    if (!value) {
+      return "N/A";
+    }
+
+    try {
+
+      if (
+        String(value).length > 15
+      ) {
+
+        return value;
+
+      }
+
+      return new Date(
+        value
+      ).toLocaleString();
+
+    } catch {
+
+      return value;
+
+    }
+
+  };
 
   if (loading) {
 
@@ -169,7 +182,7 @@ export default function InvestigationDetail() {
   if (!data) {
 
     return (
-      <div className="p-6 text-red-400">
+      <div className="p-6 text-red-500">
         Investigation not found
       </div>
     );
@@ -182,11 +195,9 @@ export default function InvestigationDetail() {
 
       <div
         className="
-          bg-gradient-to-r
-          from-red-950
-          to-red-900/20
+          card-surface
           border
-          border-red-500
+          border-surface
           rounded-2xl
           p-6
         "
@@ -195,8 +206,8 @@ export default function InvestigationDetail() {
         <div className="flex items-center gap-4">
 
           <AlertTriangle
-            className="text-red-400"
-            size={32}
+            className="text-slate-500"
+            size={30}
           />
 
           <div>
@@ -205,7 +216,7 @@ export default function InvestigationDetail() {
               Investigation Details
             </h1>
 
-            <div className="text-gray-300 mt-1">
+            <div className="app-muted mt-1">
               Investigation ID: {data.id}
             </div>
 
@@ -220,13 +231,19 @@ export default function InvestigationDetail() {
         <InfoCard
           icon={<Server size={20} />}
           title="Service"
-          value={data.serviceName}
+          value={
+            data.serviceName ||
+            "UNKNOWN"
+          }
         />
 
         <InfoCard
           icon={<Target size={20} />}
           title="Namespace"
-          value={data.namespace}
+          value={
+            data.namespace ||
+            "-"
+          }
         />
 
         <InfoCard
@@ -241,40 +258,57 @@ export default function InvestigationDetail() {
 
         <div
           className="
-            bg-slate-900
+            card-surface
             border
-            border-slate-700
+            border-surface
             rounded-2xl
             p-6
           "
         >
 
-          <h2 className="font-semibold text-xl mb-4">
+          <h2
+            className="
+              font-semibold
+              text-xl
+              mb-4
+            "
+          >
             Issue Description
           </h2>
 
-          <p className="text-gray-300">
-            {data.issueDescription}
+          <p className="app-text">
+            {
+              data.issueDescription
+            }
           </p>
 
         </div>
 
         <div
           className="
-            bg-slate-900
+            card-surface
             border
-            border-slate-700
+            border-surface
             rounded-2xl
             p-6
           "
         >
 
-          <h2 className="font-semibold text-xl mb-4">
+          <h2
+            className="
+              font-semibold
+              text-xl
+              mb-4
+            "
+          >
             Root Cause
           </h2>
 
-          <p className="text-gray-300">
-            {data.rootCause || "Not Available"}
+          <p className="app-text">
+            {
+              data.rootCause ||
+              "Generated From AI Investigation"
+            }
           </p>
 
         </div>
@@ -296,16 +330,17 @@ export default function InvestigationDetail() {
         <InfoCard
           icon={<Calendar size={20} />}
           title="Started At"
-          value={data.startedAt || "N/A"}
+          value={formatDate(
+            data.startedAt
+          )}
         />
 
         <InfoCard
           icon={<Calendar size={20} />}
           title="Completed At"
-          value={
-            data.completedAt ||
-            "In Progress"
-          }
+          value={formatDate(
+            data.completedAt
+          )}
         />
 
       </div>
@@ -316,9 +351,9 @@ export default function InvestigationDetail() {
 
       <div
         className="
-          bg-slate-900
+          card-surface
           border
-          border-slate-700
+          border-surface
           rounded-2xl
           overflow-hidden
         "
@@ -327,7 +362,7 @@ export default function InvestigationDetail() {
         <div
           className="
             border-b
-            border-slate-700
+            border-surface
             p-5
             flex
             items-center
@@ -336,17 +371,27 @@ export default function InvestigationDetail() {
         >
 
           <Brain
-            className="text-green-400"
+            className="text-slate-500"
             size={24}
           />
 
           <div>
 
-            <h2 className="text-xl font-bold">
+            <h2
+              className="
+                text-xl
+                font-bold
+              "
+            >
               RCA Report
             </h2>
 
-            <div className="text-sm text-gray-400">
+            <div
+              className="
+                text-sm
+                app-muted
+              "
+            >
               AI Generated Investigation Report
             </div>
 
@@ -359,19 +404,20 @@ export default function InvestigationDetail() {
           <div
             className="
               prose
-              prose-invert
               max-w-none
-              prose-headings:text-green-400
-              prose-strong:text-white
-              prose-p:text-gray-300
-              prose-li:text-gray-300
+              dark:prose-invert
             "
           >
 
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
+              remarkPlugins={[
+                remarkGfm
+              ]}
             >
-              {data.reportMarkdown || ""}
+              {
+                data.reportMarkdown ||
+                ""
+              }
             </ReactMarkdown>
 
           </div>
@@ -396,9 +442,9 @@ function InfoCard({
 
     <div
       className="
-        bg-slate-900
+        card-surface
         border
-        border-slate-700
+        border-surface
         rounded-xl
         p-5
       "
@@ -409,7 +455,7 @@ function InfoCard({
           flex
           items-center
           gap-2
-          text-green-400
+          text-slate-500
         "
       >
 
@@ -424,8 +470,8 @@ function InfoCard({
       <div
         className="
           mt-3
-          text-white
           break-words
+          app-text
         "
       >
         {value}

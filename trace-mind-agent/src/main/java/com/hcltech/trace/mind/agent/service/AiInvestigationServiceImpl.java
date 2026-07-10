@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hcltech.trace.mind.agent.entities.EventType;
@@ -52,28 +53,23 @@ public class AiInvestigationServiceImpl
                         6. Produce a clear RCA summary.
                         """;
 
-        @Override
-        public String investigate(String issue) throws Exception {
-                log.info("Starting AI investigation for issue: '{}' in namespace: {}", issue, namespace);
-                InvestigationResponse investigation = investigationService.create(
-                                CreateInvestigationRequest.builder()
-                                                .issueDescription(issue)
-                                                .serviceName("UNKNOWN")
-                                                .namespace(namespace)
-                                                .build());
-
-                String investigationId = investigation.getId().toString();
-                log.debug("Created initial investigation record with ID: {}", investigationId);
+        @Async
+        public void executeInvestigation(
+                        String investigationId,
+                        String issue) {
 
                 try {
-                        investigationService.markRunning(investigationId);
-                        log.debug("Sending prompt to ChatClient for investigation: {}", investigationId);
+
+                        investigationService.markRunning(
+                                        investigationId);
+
                         eventService.publish(
                                         investigationId,
                                         EventType.INVESTIGATION_STARTED,
                                         "ORCHESTRATOR",
                                         "Investigation started",
                                         null);
+
                         String report = chatClient.prompt()
                                         .system(SYSTEM_PROMPT)
                                         .user("""
@@ -87,28 +83,24 @@ public class AiInvestigationServiceImpl
                                                         Namespace:
                                                         %s
                                                         """
-                                                        .formatted(investigationId, issue, namespace))
+                                                        .formatted(
+                                                                        investigationId,
+                                                                        issue,
+                                                                        namespace))
                                         .tools(applicationInvestigationAgent)
                                         .call()
                                         .content();
-                        eventService.publish(
-                                        investigationId,
-                                        EventType.INVESTIGATION_STARTED,
-                                        "ORCHESTRATOR",
-                                        "Investigation started",
-                                        "{}");
-                        log.debug("AI analysis completed. Report size: {} characters",
-                                        report != null ? report.length() : 0);
 
                         evidenceService.save(
                                         InvestigationEvidence.builder()
-                                                        .investigationId(
-                                                                        investigationId)
+                                                        .investigationId(investigationId)
                                                         .agentType("MAIN_AGENT")
-                                                        .summary("RCA Investigation Completed")
+                                                        .summary(
+                                                                        "RCA Investigation Completed")
                                                         .evidence(
                                                                         Map.of(
-                                                                                        "issue", issue,
+                                                                                        "issue",
+                                                                                        issue,
                                                                                         "namespace",
                                                                                         namespace,
                                                                                         "report",
@@ -125,42 +117,39 @@ public class AiInvestigationServiceImpl
 
                         investigationService.markCompleted(
                                         investigationId);
-                        log.info("Investigation {} marked as COMPLETED", investigationId);
 
-                        Incident incident = Incident.builder()
-                                        .investigationId(
-                                                        investigationId)
-                                        .incidentNumber(
-                                                        "INC-" +
-                                                                        System.currentTimeMillis())
-                                        .severity("MEDIUM")
-                                        .status("OPEN")
-                                        .createdAt(
-                                                        LocalDateTime.now())
-                                        .build();
-
-                        incidentService.create(incident);
-                        log.debug("Opened new incident {} for investigation {}", incident.getIncidentNumber(),
-                                        investigationId);
-
-                        log.info(
-                                        "Investigation completed. InvestigationId={}",
-                                        investigationId);
-
-                        return report;
+                        eventService.publish(
+                                        investigationId,
+                                        EventType.INVESTIGATION_COMPLETED,
+                                        "ORCHESTRATOR",
+                                        "Investigation completed",
+                                        null);
 
                 } catch (Exception ex) {
 
                         investigationService.markFailed(
                                         investigationId);
 
-                        log.error("AI Investigation failed for investigationId: {}. Issue: {}. Error: {}",
+                        eventService.publish(
                                         investigationId,
-                                        issue,
+                                        EventType.INVESTIGATION_FAILED,
+                                        "ORCHESTRATOR",
                                         ex.getMessage(),
-                                        ex);
+                                        null);
 
-                        throw ex;
+                        throw new RuntimeException(ex);
                 }
         }
+
+        @Override
+        public InvestigationResponse createInvestigation(String issue) {
+
+                return investigationService.create(
+                                CreateInvestigationRequest.builder()
+                                                .issueDescription(issue)
+                                                .serviceName("UNKNOWN")
+                                                .namespace(namespace)
+                                                .build());
+        }
+
 }

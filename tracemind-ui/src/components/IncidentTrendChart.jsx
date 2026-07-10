@@ -4,18 +4,24 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  CartesianGrid
 } from "recharts";
 
 export default function IncidentTrendChart({
-  data
+  data = []
 }) {
 
   return (
 
-    <div className="bg-gray-900 rounded-2xl p-6">
+    <div>
 
-      <h3 className="mb-4 font-semibold">
+      <h3
+        className="
+          mb-4
+          font-semibold
+        "
+      >
         Incident Trend
       </h3>
 
@@ -26,7 +32,14 @@ export default function IncidentTrendChart({
 
         <LineChart data={data}>
 
-          <XAxis dataKey="day" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            opacity={0.2}
+          />
+
+          <XAxis
+            dataKey="day"
+          />
 
           <YAxis />
 
@@ -36,6 +49,7 @@ export default function IncidentTrendChart({
             type="monotone"
             dataKey="incidents"
             stroke="#22c55e"
+            strokeWidth={3}
           />
 
         </LineChart>
@@ -43,5 +57,7 @@ export default function IncidentTrendChart({
       </ResponsiveContainer>
 
     </div>
+
   );
+
 }
