@@ -44,4 +44,14 @@ oc start-build metrics-mcp-server --from-file=app.jar --follow
 
 oc start-build traces-mcp-server --from-file=app.jar --follow
 
+oc start-build orchestrator-agent --from-file=app.jar --follow
+
+oc start-build trace-mind-agent --from-file=app.jar --follow
+
+oc start-build tracemind-ui --from-dir=dist --follow
+
 gcloud auth application-default login
+
+$env:PGTZ="Asia/Kolkata"
+
+mvn spring-boot:run "-Dspring-boot.run.jvmArguments=-Duser.timezone=Asia/Kolkata"

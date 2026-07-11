@@ -33,6 +33,21 @@ kind: ImageStream
 metadata:
   name: traces-mcp-server
 ---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: trace-mind-agent
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: orchestrator-agent
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: tracemind-ui
+---
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
@@ -68,7 +83,6 @@ spec:
     to:
       kind: ImageStreamTag
       name: log-search-mcp-server:latest
----
 ---
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
@@ -106,3 +120,69 @@ spec:
       kind: ImageStreamTag
       name: traces-mcp-server:latest
 ---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: trace-mind-agent
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jdk17-slim:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: trace-mind-agent:latest
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: orchestrator-agent
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jdk17-slim:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: orchestrator-agent:latest
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: nginx
+spec:
+  tags:
+    - name: latest
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/ubi9/nginx-124
+      importPolicy:
+        scheduled: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: tracemind-ui
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: nginx:latest
+  output:
+    to:
+      kind: ImageStreamTag
+      name: tracemind-ui:latest

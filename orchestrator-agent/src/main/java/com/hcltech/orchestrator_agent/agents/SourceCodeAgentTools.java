@@ -3,9 +3,7 @@ package com.hcltech.orchestrator_agent.agents;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.UUID;
 
-import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.converter.BeanOutputConverter;

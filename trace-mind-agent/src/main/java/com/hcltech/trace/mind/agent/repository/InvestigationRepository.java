@@ -1,9 +1,6 @@
 package com.hcltech.trace.mind.agent.repository;
 
 import java.util.List;
-import java.util.UUID;
-
-
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

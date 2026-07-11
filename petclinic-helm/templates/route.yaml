@@ -1,37 +1,30 @@
 {{- range .Values.applications }}
-
-{{- if .route.enabled }}
+{{- $app := . }}
+{{- if and $app.enabled $app.service $app.service.enabled $app.route $app.route.enabled }}
 
 apiVersion: route.openshift.io/v1
-
 kind: Route
-
 metadata:
-
-  name: {{ .name }}
-
+  name: {{ $app.name }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 1h
 spec:
-
   to:
-
     kind: Service
-
-    name: {{ .name }}
+    name: {{ $app.name }}
 
   port:
+    targetPort: {{ $app.service.port }}
 
-    targetPort: {{ .service.port }}
-
-{{ if .route.tls.enabled }}
-
+  {{- if and $app.route.tls $app.route.tls.enabled }}
   tls:
-
     termination: edge
+  {{- end }}
 
-{{ end }}
+  {{- if $app.route.host }}
+  host: {{ $app.route.host }}
+  {{- end }}
 
 ---
-
-{{ end }}
-
-{{ end }}
+{{- end }}
+{{- end }}

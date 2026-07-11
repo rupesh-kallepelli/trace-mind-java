@@ -1,10 +1,6 @@
-package com.hcltech.trace.mind.agent.entities;
+package com.hcltech.orchestrator_agent.entity;
 
 import java.time.LocalDateTime;
-import java.util.Map;
-
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,28 +15,36 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "investigation_evidence")
+@Table(name = "investigations")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InvestigationEvidence {
+public class Investigation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String investigationId;
+    private String serviceName;
 
-    private String agentType;
+    private String namespace;
 
     @Column(columnDefinition = "TEXT")
-    private String summary;
+    private String issueDescription;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    private Map<String, Object> evidence;
+    private String status;
 
-    private LocalDateTime createdAt;
+    @Column(columnDefinition = "TEXT")
+    private String rootCause;
+
+    private Double confidenceScore;
+
+    @Column(columnDefinition = "TEXT")
+    private String reportMarkdown;
+
+    private LocalDateTime startedAt;
+
+    private LocalDateTime completedAt;
 }

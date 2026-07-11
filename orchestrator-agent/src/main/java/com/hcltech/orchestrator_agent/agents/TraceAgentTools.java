@@ -1,10 +1,8 @@
 package com.hcltech.orchestrator_agent.agents;
 
 import java.nio.charset.StandardCharsets;
-import java.rmi.server.UID;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springaicommunity.mcp.annotation.McpTool;
 import org.springaicommunity.mcp.annotation.McpToolParam;
@@ -12,12 +10,11 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import com.hcltech.orchestrator_agent.request.EventType;
 import com.hcltech.orchestrator_agent.service.TraceMindEventClient;
-
-import org.springframework.core.io.Resource;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

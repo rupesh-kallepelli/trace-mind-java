@@ -1,0 +1,388 @@
+global:
+  imagePullSecrets: []
+  commonEnv:
+    - name: TRACEMIND_API_BASE_URL
+      value: "http://trace-mind-agent:8080"
+
+    - name: NAMESPACE
+      value: kallepallirupesh-dev
+
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Dlogging.file.name=/logs/application.log"
+
+    - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+      value: http://tracing-server:9411/api/v2/spans
+
+    - name: SPRING_DATASOURCE_URL
+      value: jdbc:postgresql://postgres:5432/petclinic
+
+    - name: SPRING_DATASOURCE_USERNAME
+      value: petclinic
+
+    - name: SPRING_DATASOURCE_PASSWORD
+      value: petclinic
+
+  commonLabels: {}
+
+  commonAnnotations: {}
+
+  replicaCount: 1
+
+  image:
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+
+  resources:
+    requests:
+      cpu: 100m
+
+      memory: 256Mi
+
+    limits:
+      memory: 512Mi
+
+applications:
+  - name: postgres
+    enabled: true
+
+    replicaCount: 1
+
+    image:
+      repository: postgres
+      tag: "17"
+      pullPolicy: IfNotPresent
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 5432
+      targetPort: 5432
+
+    route:
+      enabled: false
+
+    ports:
+      - name: postgres
+        containerPort: 5432
+        protocol: TCP
+
+    env:
+      - name: POSTGRES_DB
+        value: petclinic
+
+      - name: POSTGRES_USER
+        value: petclinic
+
+      - name: POSTGRES_PASSWORD
+        value: petclinic
+
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+    persistence:
+      enabled: true
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+
+    volumeMounts:
+      - name: postgres-data
+        mountPath: /var/lib/postgresql/data
+
+    volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+
+    probes:
+      startup:
+        enabled: true
+        tcpSocket:
+          port: 5432
+        failureThreshold: 30
+        periodSeconds: 10
+
+      readiness:
+        enabled: true
+        tcpSocket:
+          port: 5432
+        initialDelaySeconds: 20
+        periodSeconds: 10
+
+      liveness:
+        enabled: true
+        tcpSocket:
+          port: 5432
+        initialDelaySeconds: 60
+        periodSeconds: 20
+
+  - name: tracemind-ui
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/tracemind-ui
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+
+      readiness:
+        enabled: true
+        httpGet:
+          path: /
+          port: 8080
+
+      liveness:
+        enabled: true
+        httpGet:
+          path: /
+          port: 8080
+
+    env: []
+    envFrom: []
+
+    volumeMounts:
+      - name: nginx-config
+        mountPath: /opt/app-root/etc/nginx.default.d/proxy.conf
+        subPath: default.conf
+
+    volumes:
+      - name: nginx-config
+        configMap:
+          name: tracemind-ui-nginx-config
+
+    sidecars: []
+
+  - name: orchestrator-agent
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/orchestrator-agent
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/gcp/service-account.json
+
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+      - name: gcp-service-account
+        mountPath: /etc/gcp
+
+    readOnly: true
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+      - name: gcp-service-account
+        secret:
+          secretName: gcp-service-account
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
+  - name: trace-mind-agent
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/trace-mind-agent
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8084
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8084
+
+    route:
+      enabled: false
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/gcp/service-account.json
+
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8084
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8084
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8084
+
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+      - name: gcp-service-account
+        mountPath: /etc/gcp
+
+    readOnly: true
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+      - name: gcp-service-account
+        secret:
+          secretName: gcp-service-account
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi

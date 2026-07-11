@@ -2,7 +2,6 @@ package com.hcltech.trace.mind.agent.service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hcltech.trace.mind.agent.entities.EventType;
-import com.hcltech.trace.mind.agent.entities.Incident;
 import com.hcltech.trace.mind.agent.entities.InvestigationEvidence;
 import com.hcltech.trace.mind.agent.request.CreateInvestigationRequest;
 import com.hcltech.trace.mind.agent.response.InvestigationResponse;
@@ -30,7 +28,6 @@ public class AiInvestigationServiceImpl
         private final InvestigationEventService eventService;
         private final InvestigationService investigationService;
         private final InvestigationEvidenceService evidenceService;
-        private final IncidentService incidentService;
         @Value("${namespace}")
         private String namespace;
         private static final String SYSTEM_PROMPT = """
@@ -111,7 +108,7 @@ public class AiInvestigationServiceImpl
 
                         investigationService.updateResult(
                                         investigationId,
-                                        "Generated From AI Investigation",
+                                        report,
                                         90.0,
                                         report);
 

@@ -36,9 +36,9 @@ spring:
 
 agent:
   main:
-    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime,investigate_metrics,investigate_traces
+    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime,investigate_metrics,investigate_traces,retrieve_recent_investigations
 
-namespace: kallepelli-rupesh-dev
+namespace: kallepallirupesh-dev
 
 logging:
   level:

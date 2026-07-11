@@ -1,18 +1,19 @@
 {{- range .Values.applications }}
-{{- with .service }}
-{{- if .enabled }}
+{{- if and .enabled .service .service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $.name | default $.Chart.Name }}
+  name: {{ .name }}
+  labels:
+    app: {{ .name }}
 spec:
-  type: {{ .type | default "ClusterIP" }}
+  type: {{ .service.type | default "ClusterIP" }}
   selector:
-    app: {{ $.name }}
+    app: {{ .name }}
   ports:
-    - port: {{ .port }}
-      targetPort: {{ .targetPort | default .port }}
+    - name: http
+      port: {{ .service.port }}
+      targetPort: {{ .service.targetPort | default .service.port }}
 ---
-{{- end }}
 {{- end }}
 {{- end }}

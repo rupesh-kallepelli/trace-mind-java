@@ -2,6 +2,22 @@ server:
   port: 8083
 
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/petclinic?options=-c%20TimeZone=Asia/Kolkata
+    username: petclinic
+    password: petclinic
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      data-source-properties:
+        TimeZone: Asia/Kolkata
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
   ai:
     vertex:
       ai:
@@ -14,7 +30,7 @@ spring:
 
     mcp:
       server:
-#        comment below for making server STDIO
+        #        comment below for making server STDIO
         protocol: STREAMABLE
         enabled: true
         name: rca_analysis_mcp
@@ -25,23 +41,20 @@ spring:
         streamable-http:
           connections:
             database-mcp:
-              url: https://database-query-mcp-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
+              url: http://database-query-mcp-server-kallepallirupesh-dev.apps.rm2.thpm.p1.openshiftapps.com
               endpoint: /mcp
-
             metrics-mcp:
-              url: https://metrics-mcp-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
+              url: http://metrics-mcp-server-kallepallirupesh-dev.apps.rm2.thpm.p1.openshiftapps.com
               endpoint: /mcp
-            
             traces-mcp:
-              url: https://traces-mcp-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
+              url: http://traces-mcp-server-kallepallirupesh-dev.apps.rm2.thpm.p1.openshiftapps.com
               endpoint: /mcp
 
-            opensearch-mcp:
-              url: https://logs-search-mcp-server-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
+            logs-mcp:
+              url: http://log-search-mcp-server-kallepallirupesh-dev.apps.rm2.thpm.p1.openshiftapps.com
               endpoint: /mcp
-            
             kuberenetes-mcp:
-              url: https://kubernetes-mcp-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
+              url: https://kubernetes-mcp-kallepallirupesh-dev.apps.rm2.thpm.p1.openshiftapps.com
               endpoint: /mcp
             # github-mcp:
             #   url: https://github-mcp-kallepelli-rupesh-dev.apps.rm1.0a51.p1.openshiftapps.com
@@ -58,11 +71,12 @@ agent:
     tool-prefixes: pods_,deployment,deployments,events,service,configmap,ingress
     # tool-prefixes: pods_,deployment,deployments,events,node,nodes,service,configmap,ingress
   main:
-    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime
+    tool-names: investigate_logs,investigate_database,investigate_source_code,investigate_runtime,investigate_metrics,investigate_traces,retrieve_recent_investigations
   metrics:
     tool-prefixes: metric_
   traces:
     tool-prefixes: trace_
+
 
 tracemind:
   api:
@@ -70,4 +84,4 @@ tracemind:
 
 logging:
   level:
-    '[com.hcltech.orchestrator_agent]': DEBUG
+    "[com.hcltech.orchestrator_agent]": DEBUG

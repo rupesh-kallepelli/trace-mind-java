@@ -1,8 +1,6 @@
 package com.hcltech.trace.mind.agent.entities;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
-
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import lombok.Setter;
 
 @Entity

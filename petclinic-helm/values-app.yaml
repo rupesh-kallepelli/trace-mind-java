@@ -187,7 +187,7 @@ applications:
         httpGet:
           path: /
           port: 8761
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -274,7 +274,7 @@ applications:
         httpGet:
           path: /
           port: 8081
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -361,7 +361,7 @@ applications:
         httpGet:
           path: /actuator/health
           port: 8082
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -460,7 +460,7 @@ applications:
         periodSeconds: 20
         timeoutSeconds: 5
         failureThreshold: 3
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -547,7 +547,7 @@ applications:
         httpGet:
           path: /
           port: 8080
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -634,7 +634,7 @@ applications:
         httpGet:
           path: /
           port: 9411
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -722,7 +722,6 @@ applications:
           path: /
           port: 9090
 
-        
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -803,7 +802,7 @@ applications:
         enabled: false
       liveness:
         enabled: false
-        
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -835,7 +834,6 @@ applications:
           limits:
             cpu: 250m
             memory: 128Mi
-
   - name: prometheus-server
     enabled: true
 
@@ -887,89 +885,89 @@ applications:
       capabilities:
         drop:
           - ALL
-
-  - name: loki
+  
+  - name: mysql
     enabled: true
+
     replicaCount: 1
 
     image:
-      repository: grafana/loki
-      tag: "3.5.0"
+      repository: mysql
+      tag: "8.4"
       pullPolicy: IfNotPresent
 
     service:
       enabled: true
       type: ClusterIP
-      port: 3100
-      targetPort: 3100
-
-    ports:
-      - name: http
-        containerPort: 3100
-        protocol: TCP
-
-    args:
-      - "-config.file=/etc/loki/loki.yaml"
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        memory: 512Mi
+      port: 3306
+      targetPort: 3306
 
     route:
       enabled: false
 
-    metrics:
+    ports:
+      - name: mysql
+        containerPort: 3306
+        protocol: TCP
+
+    env:
+      - name: MYSQL_ROOT_PASSWORD
+        value: root
+
+      - name: MYSQL_DATABASE
+        value: petclinic
+
+      - name: MYSQL_USER
+        value: petclinic
+
+      - name: MYSQL_PASSWORD
+        value: petclinic
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+    persistence:
       enabled: true
-      path: /metrics
-      port: 3100
-        
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+
     volumeMounts:
-      - name: loki-config
-        mountPath: /etc/loki
-
-      - name: loki-storage
-        mountPath: /loki
-
-      - name: app-logs
-        mountPath: /logs
+      - name: mysql-data
+        mountPath: /var/lib/mysql
 
     volumes:
-      - name: loki-config
-        configMap:
-          name: loki-config
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-pvc
 
-      - name: loki-storage
-        emptyDir: {}
+    probes:
+      startup:
+        enabled: true
+        tcpSocket:
+          port: 3306
+        failureThreshold: 30
+        periodSeconds: 10
 
-      - name: app-logs
-        emptyDir: {}
+      readiness:
+        enabled: true
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 20
+        periodSeconds: 10
 
-      - name: fluent-bit-config
-        configMap:
-          name: fluent-bit-config
-
-    sidecars:
-      - name: fluent-bit
-        image: cr.fluentbit.io/fluent/fluent-bit:3.2
-        imagePullPolicy: IfNotPresent
-
-        volumeMounts:
-          - name: app-logs
-            mountPath: /logs
-
-          - name: fluent-bit-config
-            mountPath: /fluent-bit/etc
-
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            cpu: 250m
-            memory: 128Mi
+      liveness:
+        enabled: true
+        tcpSocket:
+          port: 3306
+        initialDelaySeconds: 60
+        periodSeconds: 20
 
   - name: kubernetes-mcp
     enabled: true
@@ -1071,96 +1069,13 @@ applications:
             cpu: 250m
             memory: 128Mi
 
-  - name: mysql
-    enabled: true
-
-    replicaCount: 1
-
-    image:
-      repository: mysql
-      tag: "8.4"
-      pullPolicy: IfNotPresent
-
-    service:
-      enabled: true
-      type: ClusterIP
-      port: 3306
-      targetPort: 3306
-
-    route:
-      enabled: false
-
-    ports:
-      - name: mysql
-        containerPort: 3306
-        protocol: TCP
-
-    env:
-      - name: MYSQL_ROOT_PASSWORD
-        value: root
-
-      - name: MYSQL_DATABASE
-        value: petclinic
-
-      - name: MYSQL_USER
-        value: petclinic
-
-      - name: MYSQL_PASSWORD
-        value: petclinic
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 512Mi
-      limits:
-        cpu: "1"
-        memory: 1Gi
-
-    persistence:
-      enabled: true
-      storageClass: ""
-      accessModes:
-        - ReadWriteOnce
-      size: 5Gi
-
-    volumeMounts:
-      - name: mysql-data
-        mountPath: /var/lib/mysql
-
-    volumes:
-      - name: mysql-data
-        persistentVolumeClaim:
-          claimName: mysql-pvc
-
-    probes:
-      startup:
-        enabled: true
-        tcpSocket:
-          port: 3306
-        failureThreshold: 30
-        periodSeconds: 10
-
-      readiness:
-        enabled: true
-        tcpSocket:
-          port: 3306
-        initialDelaySeconds: 20
-        periodSeconds: 10
-
-      liveness:
-        enabled: true
-        tcpSocket:
-          port: 3306
-        initialDelaySeconds: 60
-        periodSeconds: 20
-
   - name: opensearch
     enabled: true
 
     replicaCount: 1
 
     image:
-      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/opensearch-patched
+      repository: image-registry.openshift-image-registry.svc:5000/kallepallirupesh-dev/opensearch-patched
       tag: latest
       pullPolicy: IfNotPresent
 
@@ -1241,149 +1156,12 @@ applications:
       liveness:
         enabled: false
 
-  - name: opensearch-dashboards
-    enabled: true
-
-    replicaCount: 1
-
-    image:
-      repository: opensearchproject/opensearch-dashboards
-      tag: "2.19.1"
-      pullPolicy: IfNotPresent
-
-    service:
-      enabled: true
-      type: ClusterIP
-      port: 9200
-      targetPort: 9200
-
-    route:
-      enabled: true
-      host: ""
-      tls:
-        enabled: true
-
-    ports:
-      - name: http
-        containerPort: 9200
-
-      - name: transport
-        containerPort: 9600
-
-    env:
-      - name: OPENSEARCH_HOSTS
-        value: http://opensearch:9200
-
-      - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
-        value: "true"
-
-    resources:
-      requests:
-        cpu: 250m
-        memory: 512Mi
-
-      limits:
-        cpu: "1"
-        memory: 1Gi
-
-    probes:
-      startup:
-        enabled: false
-
-      readiness:
-        enabled: false
-
-      liveness:
-        enabled: false
-  - name: postgres
-    enabled: true
-
-    replicaCount: 1
-
-    image:
-      repository: postgres
-      tag: "17"
-      pullPolicy: IfNotPresent
-
-    service:
-      enabled: true
-      type: ClusterIP
-      port: 5432
-      targetPort: 5432
-
-    route:
-      enabled: false
-
-    ports:
-      - name: postgres
-        containerPort: 5432
-        protocol: TCP
-
-    env:
-      - name: POSTGRES_DB
-        value: petclinic
-
-      - name: POSTGRES_USER
-        value: petclinic
-
-      - name: POSTGRES_PASSWORD
-        value: petclinic
-
-      - name: PGDATA
-        value: /var/lib/postgresql/data/pgdata
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 512Mi
-      limits:
-        cpu: "1"
-        memory: 1Gi
-
-    persistence:
-      enabled: true
-      storageClass: ""
-      accessModes:
-        - ReadWriteOnce
-      size: 5Gi
-
-    volumeMounts:
-      - name: postgres-data
-        mountPath: /var/lib/postgresql/data
-
-    volumes:
-      - name: postgres-data
-        persistentVolumeClaim:
-          claimName: postgres-pvc
-
-    probes:
-      startup:
-        enabled: true
-        tcpSocket:
-          port: 5432
-        failureThreshold: 30
-        periodSeconds: 10
-
-      readiness:
-        enabled: true
-        tcpSocket:
-          port: 5432
-        initialDelaySeconds: 20
-        periodSeconds: 10
-
-      liveness:
-        enabled: true
-        tcpSocket:
-          port: 5432
-        initialDelaySeconds: 60
-        periodSeconds: 20
-
   - name: database-query-mcp-server
     enabled: true
     replicaCount: 1
 
     image:
-      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/database-query-mcp-server
+      repository: image-registry.openshift-image-registry.svc:5000/kallepallirupesh-dev/database-query-mcp-server
       tag: latest
       pullPolicy: Always
 
@@ -1399,7 +1177,7 @@ applications:
       port: 8080
 
     route:
-      enabled: false
+      enabled: true
       host: ""
       tls:
         enabled: false
@@ -1432,182 +1210,7 @@ applications:
         httpGet:
           path: /
           port: 8080
-        
-    volumeMounts:
-      - name: app-logs
-        mountPath: /logs
 
-    volumes:
-      - name: app-logs
-        emptyDir: {}
-
-      - name: fluent-bit-config
-        configMap:
-          name: fluent-bit-config
-
-    sidecars:
-      - name: fluent-bit
-        image: cr.fluentbit.io/fluent/fluent-bit:3.2
-        imagePullPolicy: IfNotPresent
-
-        volumeMounts:
-          - name: app-logs
-            mountPath: /logs
-
-          - name: fluent-bit-config
-            mountPath: /fluent-bit/etc
-
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            cpu: 250m
-            memory: 128Mi
-
-  - name: log-search-mcp-server
-    enabled: true
-    replicaCount: 1
-
-    image:
-      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/log-search-mcp-server
-      tag: latest
-      pullPolicy: Always
-
-    service:
-      enabled: true
-      type: ClusterIP
-      port: 8080
-      targetPort: 8080
-
-    metrics:
-      enabled: true
-      path: /actuator/prometheus
-      port: 8080
-
-    route:
-      enabled: false
-      host: ""
-      tls:
-        enabled: false
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        memory: 512Mi
-
-    env: []
-    envFrom: []
-
-    ports:
-      - name: http
-        containerPort: 8080
-        protocol: TCP
-
-    probes:
-      startup:
-        enabled: false
-      readiness:
-        enabled: false
-        httpGet:
-          path: /
-          port: 8080
-      liveness:
-        enabled: false
-        httpGet:
-          path: /
-          port: 8080
-        
-    volumeMounts:
-      - name: app-logs
-        mountPath: /logs
-
-    volumes:
-      - name: app-logs
-        emptyDir: {}
-
-      - name: fluent-bit-config
-        configMap:
-          name: fluent-bit-config
-
-    sidecars:
-      - name: fluent-bit
-        image: cr.fluentbit.io/fluent/fluent-bit:3.2
-        imagePullPolicy: IfNotPresent
-
-        volumeMounts:
-          - name: app-logs
-            mountPath: /logs
-
-          - name: fluent-bit-config
-            mountPath: /fluent-bit/etc
-
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            cpu: 250m
-            memory: 128Mi
-
-
-  - name: metrics-mcp-server
-    enabled: true
-    replicaCount: 1
-
-    image:
-      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/metrics-mcp-server
-      tag: latest
-      pullPolicy: Always
-
-    service:
-      enabled: true
-      type: ClusterIP
-      port: 8080
-      targetPort: 8080
-
-    metrics:
-      enabled: true
-      path: /actuator/prometheus
-      port: 8080
-
-    route:
-      enabled: false
-      host: ""
-      tls:
-        enabled: false
-
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        memory: 512Mi
-
-    env: []
-    envFrom: []
-
-    ports:
-      - name: http
-        containerPort: 8080
-        protocol: TCP
-
-    probes:
-      startup:
-        enabled: false
-      readiness:
-        enabled: false
-        httpGet:
-          path: /
-          port: 8080
-      liveness:
-        enabled: false
-        httpGet:
-          path: /
-          port: 8080
-        
     volumeMounts:
       - name: app-logs
         mountPath: /logs
@@ -1645,7 +1248,7 @@ applications:
     replicaCount: 1
 
     image:
-      repository: image-registry.openshift-image-registry.svc:5000/kallepelli-rupesh-dev/traces-mcp-server
+      repository: image-registry.openshift-image-registry.svc:5000/kallepallirupesh-dev/traces-mcp-server
       tag: latest
       pullPolicy: Always
 
@@ -1661,7 +1264,7 @@ applications:
       port: 8080
 
     route:
-      enabled: false
+      enabled: true
       host: ""
       tls:
         enabled: false
@@ -1694,7 +1297,181 @@ applications:
         httpGet:
           path: /
           port: 8080
-        
+
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
+  - name: log-search-mcp-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepallirupesh-dev/log-search-mcp-server
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8080
+      targetPort: 8080
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8080
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8080
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8080
+
+    volumeMounts:
+      - name: app-logs
+        mountPath: /logs
+
+    volumes:
+      - name: app-logs
+        emptyDir: {}
+
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+    sidecars:
+      - name: fluent-bit
+        image: cr.fluentbit.io/fluent/fluent-bit:3.2
+        imagePullPolicy: IfNotPresent
+
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+
+          - name: fluent-bit-config
+            mountPath: /fluent-bit/etc
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+
+  - name: metrics-mcp-server
+    enabled: true
+    replicaCount: 1
+
+    image:
+      repository: image-registry.openshift-image-registry.svc:5000/kallepallirupesh-dev/metrics-mcp-server
+      tag: latest
+      pullPolicy: Always
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 8085
+      targetPort: 8085
+
+    metrics:
+      enabled: true
+      path: /actuator/prometheus
+      port: 8085
+
+    route:
+      enabled: true
+      host: ""
+      tls:
+        enabled: false
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    env: []
+    envFrom: []
+
+    ports:
+      - name: http
+        containerPort: 8085
+        protocol: TCP
+
+    probes:
+      startup:
+        enabled: false
+      readiness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8085
+      liveness:
+        enabled: false
+        httpGet:
+          path: /
+          port: 8085
+
     volumeMounts:
       - name: app-logs
         mountPath: /logs
