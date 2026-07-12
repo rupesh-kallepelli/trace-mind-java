@@ -2,6 +2,11 @@ server:
   port: 8084
   address: 0.0.0.0
 spring:
+  # security:
+  #   oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         issuer-uri: https://accounts.google.com
   ai:
     vertex:
       ai:
@@ -17,7 +22,7 @@ spring:
         streamable-http:
           connections:
             investigate_application_issue_mcp:
-              url: http://localhost:8083
+              url: http://orchestrator-agent:8083
               endpoint: /mcp
   datasource:
     url: jdbc:postgresql://localhost:5432/petclinic
@@ -48,3 +53,4 @@ logging:
     org.springframework.ai.vertexai.gemini: DEBUG
     org.springframework.web.client: DEBUG
     "[com.hcltech.trace.mind.agent]": DEBUG
+    org.springframework.security: TRACE

@@ -27,6 +27,8 @@ public class ApplicationInvestigationAgent {
         private final ChatClient chatClient;
         private final ToolCallbackProvider toolCallbackProvider;
         private final InvestigationEventService eventService;
+        private final RecentInvestigationRetrieverTools recentInvestigation;
+        
         @Value("${agent.main.tool-names}")
         private Set<String> toolNames;
 
@@ -130,6 +132,7 @@ public class ApplicationInvestigationAgent {
                                                                         issueDescription,
                                                                         namespace))
                                         .toolCallbacks(investigationAgents)
+                                        .tools(recentInvestigation)
                                         .call()
                                         .content();
 

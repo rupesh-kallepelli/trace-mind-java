@@ -1,7 +1,6 @@
 package com.hcltech.trace.mind.agent.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;

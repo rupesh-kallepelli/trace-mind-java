@@ -16,4 +16,7 @@ public class CreateInvestigationRequest {
 
     @NotBlank
     private String namespace;
+
+    @NotBlank
+    private String createdBy;
 }

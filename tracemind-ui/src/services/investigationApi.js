@@ -26,7 +26,7 @@ export const getInvestigationDetail = async (
 
 export const analyzeIssue = async (
   issue,
-  namespace = "default"
+  email = localStorage.getItem("userEmail")
 ) => {
 
   const response = await api.post(
@@ -35,7 +35,7 @@ export const analyzeIssue = async (
     {
       params: {
         issue,
-        namespace
+        email
       }
     }
   );

@@ -146,7 +146,7 @@ applications:
       enabled: true
       host: ""
       tls:
-        enabled: false
+        enabled: true
 
     resources:
       requests:

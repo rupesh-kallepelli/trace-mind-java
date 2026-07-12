@@ -1,7 +1,6 @@
 package com.hcltech.trace.mind.agent.service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +34,7 @@ public class InvestigationServiceImpl implements InvestigationService {
                                 .namespace(request.getNamespace())
                                 .issueDescription(request.getIssueDescription())
                                 .status("CREATED")
+                                .createdBy(request.getCreatedBy())
                                 .startedAt(LocalDateTime.now())
                                 .build();
 

@@ -8,6 +8,6 @@ public interface AiInvestigationService {
             String investigationId,
             String issue);
 
-    InvestigationResponse createInvestigation(String issue);
+    InvestigationResponse createInvestigation(String issue,String email);
 
 }

@@ -2,42 +2,51 @@ import {
   AlertTriangle,
   Brain,
   LayoutDashboard,
-  Search
+  Search,
+  LogOut,
+  User
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
+
+  const email =
+    localStorage.getItem("userEmail");
+
+  const logout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+
+    window.location.href = "/";
+  };
+
   const linkClass = ({ isActive }) =>
     `
-    flex
-    items-center
-    gap-3
-    p-3
-    rounded-xl
-    transition-all
+      flex
+      items-center
+      gap-3
+      p-3
+      rounded-xl
+      transition-all
 
-    ${isActive
+      ${isActive
       ? `
-            bg-white
-            border
-            border-slate-300
-
-            text-slate-900
-
-            font-semibold
-          `
+              bg-white
+              border
+              border-slate-300
+              text-slate-900
+              font-semibold
+            `
       : `
-            text-slate-500
-
-            hover:bg-slate-100
-            hover:text-slate-900
-          `
+              text-slate-500
+              hover:bg-slate-100
+              hover:text-slate-900
+            `
     }
-  `;
+    `;
 
   return (
-
     <aside
       className="
         w-72
@@ -49,7 +58,6 @@ export default function Sidebar() {
         flex-col
       "
     >
-
       <div
         className="
           p-6
@@ -57,12 +65,11 @@ export default function Sidebar() {
           app-border
         "
       >
-
         <h1
           className="
-              text-3xl
-              font-bold
-            "
+            text-3xl
+            font-bold
+          "
         >
           TraceMind
         </h1>
@@ -76,7 +83,6 @@ export default function Sidebar() {
         >
           AI Powered RCA Platform
         </p>
-
       </div>
 
       <nav
@@ -86,7 +92,6 @@ export default function Sidebar() {
           space-y-2
         "
       >
-
         <NavLink
           to="/"
           className={linkClass}
@@ -125,22 +130,54 @@ export default function Sidebar() {
           p-4
           border-t
           app-border
+          space-y-3
         "
       >
+        <div
+          className="
+            flex
+            items-center
+            gap-2
+            text-sm
+          "
+        >
+          <User size={16} />
+          <span className="truncate">
+            {email || "Authenticated User"}
+          </span>
+        </div>
+
+        <button
+          onClick={logout}
+          className="
+            w-full
+            flex
+            items-center
+            justify-center
+            gap-2
+            px-3
+            py-2
+            rounded-lg
+            bg-red-600
+            text-white
+            hover:bg-red-700
+            transition
+          "
+        >
+          <LogOut size={16} />
+          Logout
+        </button>
 
         <div
           className="
             text-xs
             app-muted
+            text-center
           "
         >
           TraceMind v1.0
         </div>
-
       </div>
-
     </aside>
-
   );
-
 }

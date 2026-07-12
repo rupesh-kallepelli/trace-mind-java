@@ -1,7 +1,6 @@
 package com.hcltech.trace.mind.agent.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.hcltech.trace.mind.agent.entities.EventType;
 import com.hcltech.trace.mind.agent.entities.InvestigationEvent;

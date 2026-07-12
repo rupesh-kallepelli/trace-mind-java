@@ -1,7 +1,5 @@
 package com.hcltech.trace.mind.agent.service;
 
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 
 import com.hcltech.trace.mind.agent.request.CreateInvestigationRequest;

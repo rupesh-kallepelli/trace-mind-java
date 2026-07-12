@@ -139,13 +139,14 @@ public class AiInvestigationServiceImpl
         }
 
         @Override
-        public InvestigationResponse createInvestigation(String issue) {
+        public InvestigationResponse createInvestigation(String issue, String email) {
 
                 return investigationService.create(
                                 CreateInvestigationRequest.builder()
                                                 .issueDescription(issue)
                                                 .serviceName("UNKNOWN")
                                                 .namespace(namespace)
+                                                .createdBy(email)
                                                 .build());
         }
 

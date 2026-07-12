@@ -26,11 +26,11 @@ public class ObservaAIController {
 
     @PostMapping("/analyze")
     public ResponseEntity<?> analyze(
-            @RequestParam String issue) {
+            @RequestParam String issue, @RequestParam String email) {
         log.info("REST request to trigger AI analysis for issue: {}", issue);
         try {
             InvestigationResponse investigation = aiInvestigationService
-                    .createInvestigation(issue);
+                    .createInvestigation(issue, email);
 
             log.debug("Investigation created with ID: {}", investigation.getId());
 

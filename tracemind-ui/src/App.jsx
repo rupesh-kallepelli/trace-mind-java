@@ -1,7 +1,8 @@
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  Navigate
 } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
@@ -12,17 +13,25 @@ import InvestigationDetail from "./pages/InvestigationDetail";
 import Incidents from "./pages/Incidents";
 import NewInvestigation from "./pages/NewInvestigation";
 
+import LoginPage from "./pages/LoginPage";
 
 export default function App() {
 
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <LoginPage />;
+  }
+
   return (
     <BrowserRouter>
-
       <MainLayout>
-
         <Routes>
 
-          <Route path="/" element={<Dashboard />} />
+          <Route
+            path="/"
+            element={<Dashboard />}
+          />
 
           <Route
             path="/investigations"
@@ -44,20 +53,13 @@ export default function App() {
             element={<NewInvestigation />}
           />
 
-          {/* <Route
-            path="/services"
-            element={<Services />}
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
           />
 
-          <Route
-            path="/analytics"
-            element={<Analytics />}
-          /> */}
-
         </Routes>
-
       </MainLayout>
-
     </BrowserRouter>
   );
 }

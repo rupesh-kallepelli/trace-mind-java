@@ -21,6 +21,8 @@ import {
 import InvestigationTimeline
   from "../components/InvestigationTimeline";
 
+import { EventSourcePolyfill }
+  from "event-source-polyfill";
 export default function InvestigationDetail() {
 
   const { id } = useParams();
@@ -74,10 +76,14 @@ export default function InvestigationDetail() {
     if (!id) {
       return;
     }
-
     const eventSource =
-      new EventSource(
-        `${window.location.origin}/api/v1/investigations/${id}/stream`
+      new EventSourcePolyfill(
+        `${window.location.origin}/api/v1/investigations/${id}/stream`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
       );
 
     eventSource.addEventListener(

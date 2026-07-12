@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
+import { EventSourcePolyfill } from "event-source-polyfill";
 import {
   Brain,
   Search,
@@ -45,10 +45,18 @@ export default function NewInvestigation() {
       investigationId
     );
 
-    const eventSource =
-      new EventSource(
-        `${window.location.origin}/api/v1/investigations/${investigationId}/stream`
-      );
+
+    const token = localStorage.getItem("token");
+
+    const eventSource = new EventSourcePolyfill(
+      `${window.location.origin}/api/v1/investigations/${investigationId}/stream`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
 
     eventSource.addEventListener(
       "investigation-event",

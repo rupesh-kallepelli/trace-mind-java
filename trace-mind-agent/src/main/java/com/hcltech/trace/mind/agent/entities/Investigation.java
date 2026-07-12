@@ -47,4 +47,7 @@ public class Investigation {
     private LocalDateTime startedAt;
 
     private LocalDateTime completedAt;
+    
+    @Column(name = "created_by")
+    private String createdBy;
 }
