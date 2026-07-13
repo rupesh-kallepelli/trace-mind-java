@@ -12,6 +12,10 @@ import Investigations from "./pages/Investigations";
 import InvestigationDetail from "./pages/InvestigationDetail";
 import Incidents from "./pages/Incidents";
 import NewInvestigation from "./pages/NewInvestigation";
+import ApplicationManagementPage from "./pages/ApplicationManagementPage";
+import ApplicationDetailsPage from "./pages/ApplicationDetailsPage";
+import MicroserviceDetailsPage from "./pages/MicroserviceDetailsPage";
+import DatabaseDetailsPage from "./pages/DatabaseDetailsPage";
 
 import LoginPage from "./pages/LoginPage";
 
@@ -54,10 +58,27 @@ export default function App() {
           />
 
           <Route
+            path="/applications"
+            element={<ApplicationManagementPage />}
+          />
+
+          <Route
+            path="/applications/:id"
+            element={<ApplicationDetailsPage />}
+          />
+          <Route
             path="*"
             element={<Navigate to="/" replace />}
           />
+        <Route
+          path="/applications/:appId/microservices/:serviceId"
+          element={<MicroserviceDetailsPage />}
+        />
 
+        <Route
+          path="/applications/:appId/databases/:databaseId"
+          element={<DatabaseDetailsPage />}
+        />
         </Routes>
       </MainLayout>
     </BrowserRouter>

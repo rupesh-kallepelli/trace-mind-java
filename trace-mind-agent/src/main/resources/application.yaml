@@ -22,7 +22,7 @@ spring:
         streamable-http:
           connections:
             investigate_application_issue_mcp:
-              url: http://orchestrator-agent:8083
+              url: http://localhost:8083
               endpoint: /mcp
   datasource:
     url: jdbc:postgresql://localhost:5432/petclinic

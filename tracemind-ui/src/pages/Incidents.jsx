@@ -16,11 +16,20 @@ export default function Incidents() {
     useState([]);
 
   useEffect(() => {
-
     getIncidents()
-      .then(setItems)
-      .catch(console.error);
+      .then((data) => {
+        console.log("INCIDENTS RESPONSE", data);
 
+        setItems(
+          Array.isArray(data)
+            ? data
+            : data.data || data.content || data.result || []
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+        setItems([]);
+      });
   }, []);
 
   const severityColor =

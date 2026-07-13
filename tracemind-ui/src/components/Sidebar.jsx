@@ -4,7 +4,8 @@ import {
   LayoutDashboard,
   Search,
   LogOut,
-  User
+  User,
+  Boxes
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -85,45 +86,66 @@ export default function Sidebar() {
         </p>
       </div>
 
-      <nav
-        className="
-          flex-1
-          p-4
-          space-y-2
-        "
-      >
-        <NavLink
-          to="/"
-          className={linkClass}
-        >
-          <LayoutDashboard size={18} />
-          Dashboard
-        </NavLink>
+     <nav
+       className="
+         flex-1
+         p-4
+         space-y-6
+       "
+     >
+       <div>
+         <p className="text-xs uppercase tracking-wider app-muted mb-2">
+           Investigations
+         </p>
 
-        <NavLink
-          to="/new-investigation"
-          className={linkClass}
-        >
-          <Brain size={18} />
-          New Investigation
-        </NavLink>
+         <div className="space-y-2">
+           <NavLink to="/" className={linkClass}>
+             <LayoutDashboard size={18} />
+             Dashboard
+           </NavLink>
 
-        <NavLink
-          to="/investigations"
-          className={linkClass}
-        >
-          <Search size={18} />
-          Investigations
-        </NavLink>
+           <NavLink
+             to="/new-investigation"
+             className={linkClass}
+           >
+             <Brain size={18} />
+             New Investigation
+           </NavLink>
 
-        <NavLink
-          to="/incidents"
-          className={linkClass}
-        >
-          <AlertTriangle size={18} />
-          Incidents
-        </NavLink>
-      </nav>
+           <NavLink
+             to="/investigations"
+             className={linkClass}
+           >
+             <Search size={18} />
+             Investigations
+           </NavLink>
+
+           <NavLink
+             to="/incidents"
+             className={linkClass}
+           >
+             <AlertTriangle size={18} />
+             Incidents
+           </NavLink>
+         </div>
+       </div>
+
+       <div>
+         <p className="text-xs uppercase tracking-wider app-muted mb-2">
+           Knowledge
+         </p>
+
+         <div className="space-y-2">
+           <NavLink
+             to="/applications"
+             className={linkClass}
+           >
+             <Boxes size={18} />
+             Applications
+           </NavLink>
+         </div>
+       </div>
+     </nav>
 
       <div
         className="
